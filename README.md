@@ -1,7 +1,7 @@
 # Lumina Energy Card
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)
+![Version](https://img.shields.io/badge/version-1.0.2-blue.svg)
 
 Limuna Energy Card repository is <https://github.com/ratava/lumina-energy-card>.
 
@@ -51,7 +51,7 @@ Lumina Energy Card is a Home Assistant custom Lovelace card that renders animate
 #### Manual Installation (EN)
 
 1. Download `dist/lumina-energy-card.js` from the [latest release](https://github.com/ratava/lumina-energy-card/releases).
-1. Copy the file to `config/www/community/lumina-energy-card/`.
+1. Copy the file to `/config/www/community/lumina-energy-card/`.
 1. Place `dist/lumina_background.jpg` in the same directory.
 1. Add the Lovelace resource:
 
@@ -121,6 +121,7 @@ background_image: /local/community/lumina-energy-card/lumina_background.jpg
 ### Changelog (EN)
 
 - **1.0.1 (2025)** – Moved distributable files into `dist/` and aligned manual install docs with new filenames.
+- **1.0.2 (2025)** – Update to base code
 
 ---
 
@@ -150,7 +151,7 @@ Lumina Energy Card è una scheda Lovelace per Home Assistant che offre grafica a
 ### Installazione Manuale (IT)
 
 1. Scarica `dist/lumina-energy-card.js` dall'[ultima release](https://github.com/ratava/lumina-energy-card/releases).
-1. Copia il file in `config/www/community/lumina-energy-card/`.
+1. Copia il file in `/config/www/community/lumina-energy-card/`.
 1. Copia `dist/lumina_background.jpg` nella stessa cartella.
 1. Aggiungi la risorsa Lovelace come mostrato nella sezione inglese.
 1. Riavvia Home Assistant.
@@ -205,7 +206,7 @@ Die Lumina Energy Card zeigt animierte Energieflüsse in Home Assistant, unterst
 ### Manuelle Installation (DE)
 
 1. Lade `dist/lumina-energy-card.js` aus dem [aktuellen Release](https://github.com/ratava/lumina-energy-card/releases).
-1. Kopiere die Datei nach `config/www/community/lumina-energy-card/`.
+1. Kopiere die Datei nach `/config/www/community/lumina-energy-card/`.
 1. Lege `dist/lumina_background.jpg` im selben Ordner ab.
 1. Ergänze die Lovelace-Ressource wie im englischen Abschnitt.
 1. Starte Home Assistant neu.

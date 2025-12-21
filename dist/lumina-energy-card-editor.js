@@ -1,9 +1,10 @@
 /**
- * Lumina Energy Dashboard (Ultimate Edition) Editor
- * Visual configuration editor for Lumina Energy Dashboard (Ultimate Edition)
- * Version: 1.0.1
+ * Lumina Energy Card
+ * Custom Home Assistant card for energy flow visualization
+ * Version: 1.0.2
  * Tested with Home Assistant 2025.12+
  */
+
 
 class LuminaEnergyCardEditor extends HTMLElement {
   constructor() {
