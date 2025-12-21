@@ -23,7 +23,7 @@ Animated Home Assistant card that visualises PV, battery, grid, load, and EV ene
 ### Manual
 
 1. Download the assets from the [latest release](https://github.com/ratava/lumina-energy-card/releases).
-2. Copy `dist/lumina-energy-card.js`, `dist/lumina-energy-card-editor.js`, and `dist/lumina_background.jpg` to `/config/www/community/lumina-energy-card/`.
+2. Copy `dist/lumina-energy-card.js` and `dist/lumina_background.jpg` to `/config/www/community/lumina-energy-card/`.
 3. Add the Lovelace resource pointing to `/local/community/lumina-energy-card/lumina-energy-card.js` and reload the frontend.
 
 ## Basic Configuration
