@@ -1,7 +1,7 @@
 /**
  * Lumina Energy Card
  * Custom Home Assistant card for energy flow visualization
- * Version: 1.0.4
+ * Version: 1.0.5
  * Tested with Home Assistant 2025.12+
  */
 
@@ -353,7 +353,7 @@ class LuminaEnergyCard extends HTMLElement {
   }
 
   static get version() {
-    return '1.0.4';
+    return '1.0.5';
   }
 }
 
@@ -367,6 +367,92 @@ class LuminaEnergyCardEditor extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this._rendered = false;
     this._activeTab = 'config';
+    this._defaults = (typeof LuminaEnergyCard !== 'undefined' && typeof LuminaEnergyCard.getStubConfig === 'function')
+      ? { ...LuminaEnergyCard.getStubConfig() }
+      : {};
+    this._schemas = this._buildSchemas();
+    if (window.loadCardHelpers) {
+      window.loadCardHelpers();
+    }
+  }
+
+  _buildSchemas() {
+    const entitySelector = { entity: { domain: ['sensor', 'input_number'] } };
+    const languageOptions = [
+      { value: 'en', label: 'English' },
+      { value: 'it', label: 'Italiano' },
+      { value: 'de', label: 'Deutsch' }
+    ];
+    const unitOptions = [
+      { value: 'W', label: 'Watts (W)' },
+      { value: 'kW', label: 'Kilowatts (kW)' }
+    ];
+    const define = (entries) => entries.map((entry) => {
+      const result = { ...entry };
+      if (entry.name && this._defaults[entry.name] !== undefined && result.default === undefined) {
+        result.default = this._defaults[entry.name];
+      }
+      return result;
+    });
+
+    return {
+      general: define([
+        { name: 'card_title', label: 'Card Title', selector: { text: {} }, helper: 'Title displayed at the top of the card.' },
+        { name: 'background_image', label: 'Background Image Path', selector: { text: {} }, helper: 'Path to the background image (e.g., /local/community/lumina-energy-card/lumina_background.jpg).' },
+        { name: 'language', label: 'Language', selector: { select: { options: languageOptions } } },
+        { name: 'display_unit', label: 'Display Unit', selector: { select: { options: unitOptions } } }
+      ]),
+      refresh: define([
+        { name: 'update_interval', label: 'Update Interval', selector: { number: { min: 10, max: 60, step: 5, mode: 'slider', unit_of_measurement: 's' } }, helper: 'Refresh cadence for card updates.' },
+        { name: 'animation_speed_factor', label: 'Animation Speed Factor', selector: { number: { min: 0.25, max: 4, step: 0.25, mode: 'slider', unit_of_measurement: 'x' } }, helper: 'Adjust animation speed multiplier (0.25x–4x).' }
+      ]),
+      pv: define([
+        { name: 'sensor_pv1', label: 'PV Sensor 1 (Required)', selector: entitySelector, helper: 'Primary solar production sensor.' },
+        { name: 'sensor_pv2', label: 'PV Sensor 2', selector: entitySelector },
+        { name: 'sensor_pv3', label: 'PV Sensor 3', selector: entitySelector },
+        { name: 'sensor_pv4', label: 'PV Sensor 4', selector: entitySelector },
+        { name: 'sensor_pv5', label: 'PV Sensor 5', selector: entitySelector },
+        { name: 'sensor_pv6', label: 'PV Sensor 6', selector: entitySelector },
+        { name: 'sensor_daily', label: 'Daily Production Sensor', selector: entitySelector, helper: 'Sensor reporting daily production totals.' }
+      ]),
+      battery: define([
+        { name: 'sensor_bat1_soc', label: 'Battery 1 SOC', selector: entitySelector },
+        { name: 'sensor_bat1_power', label: 'Battery 1 Power', selector: entitySelector },
+        { name: 'sensor_bat2_soc', label: 'Battery 2 SOC', selector: entitySelector },
+        { name: 'sensor_bat2_power', label: 'Battery 2 Power', selector: entitySelector },
+        { name: 'sensor_bat3_soc', label: 'Battery 3 SOC', selector: entitySelector },
+        { name: 'sensor_bat3_power', label: 'Battery 3 Power', selector: entitySelector },
+        { name: 'sensor_bat4_soc', label: 'Battery 4 SOC', selector: entitySelector },
+        { name: 'sensor_bat4_power', label: 'Battery 4 Power', selector: entitySelector }
+      ]),
+      other: define([
+        { name: 'sensor_home_load', label: 'Home Load/Consumption', selector: entitySelector, helper: 'Total household consumption sensor.' },
+        { name: 'sensor_grid_power', label: 'Grid Power', selector: entitySelector, helper: 'Positive/negative grid flow sensor.' },
+        { name: 'invert_grid', label: 'Invert Grid Values', selector: { boolean: {} }, default: false, helper: 'Enable if import/export polarity is reversed.' }
+      ]),
+      ev: define([
+        { name: 'sensor_car_power', label: 'Car Power Sensor', selector: entitySelector },
+        { name: 'sensor_car_soc', label: 'Car SOC Sensor', selector: entitySelector },
+        { name: 'show_car_soc', label: 'Show Car SOC', selector: { boolean: {} }, default: false },
+        { name: 'car_pct_color', label: 'Car SOC Color', selector: { text: {} }, default: '#00FFFF', helper: 'Hex color for EV SOC text (e.g., #00FFFF).' }
+      ]),
+      typography: define([
+        { name: 'header_font_size', label: 'Header Font Size', selector: { number: { min: 12, max: 32, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'daily_label_font_size', label: 'Daily Label Font Size', selector: { number: { min: 8, max: 24, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'daily_value_font_size', label: 'Daily Value Font Size', selector: { number: { min: 12, max: 32, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'pv_font_size', label: 'PV Text Font Size', selector: { number: { min: 12, max: 28, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'battery_soc_font_size', label: 'Battery SOC Font Size', selector: { number: { min: 12, max: 32, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'battery_power_font_size', label: 'Battery Power Font Size', selector: { number: { min: 10, max: 28, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'load_font_size', label: 'Load Font Size', selector: { number: { min: 10, max: 28, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'grid_font_size', label: 'Grid Font Size', selector: { number: { min: 10, max: 28, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'car_power_font_size', label: 'Car Power Font Size', selector: { number: { min: 10, max: 28, step: 1, mode: 'slider', unit_of_measurement: 'px' } } },
+        { name: 'car_soc_font_size', label: 'Car SOC Font Size', selector: { number: { min: 8, max: 24, step: 1, mode: 'slider', unit_of_measurement: 'px' } } }
+      ])
+    };
+  }
+
+  _configWithDefaults() {
+    return { ...this._defaults, ...this._config };
   }
 
   setConfig(config) {
@@ -392,225 +478,6 @@ class LuminaEnergyCardEditor extends HTMLElement {
     this.dispatchEvent(event);
   }
 
-  _valueChanged(ev) {
-    if (!this._config || !this._hass) {
-      return;
-    }
-    const target = ev.target;
-    if (!target) return;
-
-    const value = target.value;
-    const key = target.configValue;
-
-    if (this._config[key] === value) {
-      return;
-    }
-
-    const newConfig = { ...this._config };
-    if (value === '' || value === undefined) {
-      delete newConfig[key];
-    } else {
-      newConfig[key] = value;
-    }
-    this._config = newConfig;
-    this.configChanged(newConfig);
-  }
-
-  _selectChanged(ev) {
-    if (!this._config || !this._hass) {
-      return;
-    }
-    const target = ev.target;
-    if (!target) return;
-
-    const value = target.value;
-    const key = target.configValue;
-
-    if (this._config[key] === value) {
-      return;
-    }
-
-    const newConfig = { ...this._config };
-    if (value === '' || value === undefined) {
-      delete newConfig[key];
-    } else {
-      newConfig[key] = value;
-    }
-    this._config = newConfig;
-    this.configChanged(newConfig);
-  }
-
-  _boolChanged(ev) {
-    if (!this._config || !this._hass) {
-      return;
-    }
-    const target = ev.target;
-    if (!target) return;
-
-    const checked = target.checked;
-    const key = target.configValue;
-
-    const newConfig = { ...this._config };
-    if (checked === false) {
-      delete newConfig[key];
-    } else {
-      newConfig[key] = checked;
-    }
-    this._config = newConfig;
-    this.configChanged(newConfig);
-  }
-
-  _sliderChanged(ev, min, max) {
-    const target = ev.target;
-    if (!target) {
-      const fallback = Number.isFinite(min) ? min : 0;
-      return fallback;
-    }
-
-    const rawDetail = ev && ev.detail && ev.detail.value !== undefined ? Number(ev.detail.value) : NaN;
-    const rawTarget = Number(target.value);
-    const raw = Number.isFinite(rawDetail) ? rawDetail : rawTarget;
-    const minBound = Number.isFinite(min) ? min : Number(target.min ?? raw);
-    const maxBound = Number.isFinite(max) ? max : Number(target.max ?? raw);
-    const stepAttr = Number(target.step);
-    const stepSize = Number.isFinite(stepAttr) && stepAttr > 0 ? stepAttr : null;
-    let clamped = Number.isFinite(raw) ? Math.min(Math.max(raw, minBound), maxBound) : minBound;
-    if (stepSize) {
-      const steps = Math.round((clamped - minBound) / stepSize);
-      clamped = Math.min(Math.max(minBound + steps * stepSize, minBound), maxBound);
-    }
-    target.value = clamped;
-
-    if (!this._config || !this._hass) {
-      return clamped;
-    }
-
-    const key = target.configValue;
-    if (Number(this._config[key]) === clamped) {
-      return clamped;
-    }
-
-    const newConfig = { ...this._config };
-    newConfig[key] = clamped;
-    this._config = newConfig;
-    this.configChanged(newConfig);
-    return clamped;
-  }
-
-  _entityChanged(ev) {
-    if (!this._config || !this._hass) {
-      return;
-    }
-    const target = ev.target;
-    if (!target) return;
-
-    const value = ev.detail && ev.detail.value !== undefined ? ev.detail.value : target.value;
-    const key = target.configValue;
-
-    if (this._config[key] === value || (value === undefined && this._config[key] === undefined)) {
-      return;
-    }
-
-    const newConfig = { ...this._config };
-    if (!value) {
-      delete newConfig[key];
-    } else {
-      newConfig[key] = value;
-    }
-    this._config = newConfig;
-    this.configChanged(newConfig);
-  }
-
-  _createTextField(label, configKey, value) {
-    const textField = document.createElement('ha-textfield');
-    textField.label = label;
-    textField.value = value || '';
-    textField.configValue = configKey;
-    textField.addEventListener('input', this._valueChanged.bind(this));
-    return textField;
-  }
-
-  _createEntityPicker(label, configKey, value, includeDomains = ['sensor']) {
-    const picker = document.createElement('ha-entity-picker');
-    picker.label = label;
-    picker.value = value || '';
-    picker.configValue = configKey;
-    picker.hass = this._hass;
-    picker.includeDomains = includeDomains;
-    picker.allowCustomEntity = true;
-    picker.addEventListener('value-changed', this._entityChanged.bind(this));
-    return picker;
-  }
-
-  _createSelect(label, configKey, value, options) {
-    const select = document.createElement('ha-select');
-    select.label = label;
-    select.value = value || options[0][0];
-    select.configValue = configKey;
-    select.addEventListener('selected', this._selectChanged.bind(this));
-    select.addEventListener('closed', (ev) => ev.stopPropagation());
-
-    options.forEach(([val, txt]) => {
-      const item = document.createElement('mwc-list-item');
-      item.value = val;
-      item.textContent = txt;
-      select.appendChild(item);
-    });
-
-    return select;
-  }
-
-  _createSwitch(label, configKey, checked) {
-    const container = document.createElement('div');
-    container.className = 'switch-container';
-
-    const labelEl = document.createElement('label');
-    labelEl.textContent = label;
-
-    const switchEl = document.createElement('ha-switch');
-    switchEl.checked = checked || false;
-    switchEl.configValue = configKey;
-    switchEl.addEventListener('change', this._boolChanged.bind(this));
-
-    container.appendChild(labelEl);
-    container.appendChild(switchEl);
-    return container;
-  }
-
-  _createSlider(label, configKey, value, min, max, step, unit) {
-    const container = document.createElement('div');
-    container.className = 'slider-container';
-
-    const labelEl = document.createElement('div');
-    labelEl.className = 'slider-label';
-
-    const numeric = Number(value);
-    const stepSize = Number.isFinite(step) && step > 0 ? step : null;
-    let clamped = Number.isFinite(numeric) ? Math.min(Math.max(numeric, min), max) : min;
-    if (stepSize) {
-      const steps = Math.round((clamped - min) / stepSize);
-      clamped = Math.min(Math.max(min + steps * stepSize, min), max);
-    }
-    labelEl.textContent = `${label}: ${clamped} ${unit}`;
-
-    const slider = document.createElement('ha-slider');
-    slider.min = min;
-    slider.max = max;
-    slider.step = step;
-    slider.value = clamped;
-    slider.pin = true;
-    slider.configValue = configKey;
-    slider.addEventListener('value-changed', (ev) => {
-      const updatedVal = this._sliderChanged(ev, min, max);
-      labelEl.textContent = `${label}: ${updatedVal} ${unit}`;
-    });
-
-    container.appendChild(labelEl);
-    container.appendChild(slider);
-
-    return container;
-  }
-
   _onTabChanged(ev, tabs) {
     const target = ev.target;
     const index = target && Number.isFinite(target.selected) ? target.selected : 0;
@@ -623,162 +490,101 @@ class LuminaEnergyCardEditor extends HTMLElement {
     }
   }
 
-  _buildConfigContent(config) {
+  _createSection(title, helper, schema) {
+    const section = document.createElement('div');
+    section.className = 'section';
+
+    const heading = document.createElement('div');
+    heading.className = 'section-title';
+    heading.textContent = title;
+    section.appendChild(heading);
+
+    if (helper) {
+      const helperEl = document.createElement('div');
+      helperEl.className = 'section-helper';
+      helperEl.textContent = helper;
+      section.appendChild(helperEl);
+    }
+
+    section.appendChild(this._createForm(schema));
+    return section;
+  }
+
+  _createForm(schema) {
+    const form = document.createElement('ha-form');
+    form.hass = this._hass;
+    form.data = this._configWithDefaults();
+    form.schema = schema;
+    form.computeLabel = (field) => field.label || field.name;
+    form.computeHelper = (field) => field.helper;
+    form.addEventListener('value-changed', (ev) => {
+      if (ev.target !== form) {
+        return;
+      }
+      this._onFormValueChanged(ev, schema);
+    });
+    return form;
+  }
+
+  _onFormValueChanged(ev, schema) {
+    ev.stopPropagation();
+    if (!this._config) {
+      return;
+    }
+    const value = ev.detail ? ev.detail.value : undefined;
+    if (!value || typeof value !== 'object') {
+      return;
+    }
+
+    const newConfig = { ...this._config };
+    schema.forEach((field) => {
+      if (!field.name) {
+        return;
+      }
+      const fieldValue = value[field.name];
+      const defaultVal = field.default !== undefined ? field.default : this._defaults[field.name];
+      if (
+        fieldValue === '' ||
+        fieldValue === null ||
+        fieldValue === undefined ||
+        (defaultVal !== undefined && fieldValue === defaultVal)
+      ) {
+        delete newConfig[field.name];
+      } else {
+        newConfig[field.name] = fieldValue;
+      }
+    });
+
+    this._config = newConfig;
+    this.configChanged(newConfig);
+    this._rendered = false;
+    this.render();
+  }
+
+  _buildConfigContent() {
     const container = document.createElement('div');
     container.className = 'card-config';
 
-    const cardSettingsTitle = document.createElement('div');
-    cardSettingsTitle.className = 'section-title';
-    cardSettingsTitle.textContent = 'Configuration';
-    container.appendChild(cardSettingsTitle);
+    const sections = [
+      { title: 'Configuration', helper: 'General card settings.', schema: this._schemas.general },
+      { title: 'Refresh & Animation', helper: 'Control polling interval and flow animation speed.', schema: this._schemas.refresh },
+      { title: 'PV (Solar) Sensors', helper: 'Configure up to six PV or input_number entities.', schema: this._schemas.pv },
+      { title: 'Battery Sensors', helper: 'Provide SOC and power sensors for each battery.', schema: this._schemas.battery },
+      { title: 'Other Sensors', helper: 'Home load, grid, and inversion options.', schema: this._schemas.other },
+      { title: 'EV Car (Optional)', helper: 'Optional EV metrics and styling.', schema: this._schemas.ev }
+    ];
 
-    container.appendChild(this._createTextField('Card Title', 'card_title', config.card_title || 'LUMINA ENERGY'));
-    container.appendChild(this._createTextField('Background Image Path', 'background_image', config.background_image || '/local/community/lumina-energy-card/lumina_background.jpg'));
-
-    const bgHelper = document.createElement('div');
-    bgHelper.className = 'helper-text';
-    bgHelper.textContent = 'Path to background image (e.g., /local/community/lumina-energy-card/bg.jpg)';
-    container.appendChild(bgHelper);
-
-    container.appendChild(this._createSelect('Language', 'language', config.language || 'en', [
-      ['en', 'English'],
-      ['it', 'Italiano'],
-      ['de', 'Deutsch']
-    ]));
-
-    container.appendChild(this._createSelect('Display Unit', 'display_unit', config.display_unit || 'kW', [
-      ['W', 'Watts (W)'],
-      ['kW', 'Kilowatts (kW)']
-    ]));
-
-    container.appendChild(this._createSlider('Update Interval', 'update_interval', config.update_interval ?? 30, 10, 60, 10, 'seconds'));
-
-    const animationTitle = document.createElement('div');
-    animationTitle.className = 'section-title';
-    animationTitle.textContent = 'Animation';
-    container.appendChild(animationTitle);
-
-    const animationHelper = document.createElement('div');
-    animationHelper.className = 'helper-text';
-    animationHelper.textContent = 'Adjust the animation speed multiplier (0.25x–4x).';
-    container.appendChild(animationHelper);
-
-    container.appendChild(this._createSlider('Animation Speed Factor', 'animation_speed_factor', config.animation_speed_factor ?? 1, 0.25, 4, 0.25, 'x'));
-
-    const pvTitle = document.createElement('div');
-    pvTitle.className = 'section-title';
-    pvTitle.textContent = 'PV (Solar) Sensors';
-    container.appendChild(pvTitle);
-
-    const pvHelper = document.createElement('div');
-    pvHelper.className = 'helper-text';
-    pvHelper.textContent = 'Configure up to 6 PV/solar sensors. Only PV1 is required.';
-    container.appendChild(pvHelper);
-
-    const pv1Example = document.createElement('div');
-    pv1Example.className = 'helper-text';
-    pv1Example.textContent = 'Example: sensor.solar_production';
-    container.appendChild(pv1Example);
-
-    container.appendChild(this._createEntityPicker('PV Sensor 1 (Required)', 'sensor_pv1', config.sensor_pv1));
-    container.appendChild(this._createEntityPicker('PV Sensor 2 (Optional)', 'sensor_pv2', config.sensor_pv2));
-    container.appendChild(this._createEntityPicker('PV Sensor 3 (Optional)', 'sensor_pv3', config.sensor_pv3));
-    container.appendChild(this._createEntityPicker('PV Sensor 4 (Optional)', 'sensor_pv4', config.sensor_pv4));
-    container.appendChild(this._createEntityPicker('PV Sensor 5 (Optional)', 'sensor_pv5', config.sensor_pv5));
-    container.appendChild(this._createEntityPicker('PV Sensor 6 (Optional)', 'sensor_pv6', config.sensor_pv6));
-
-    const dailyExample = document.createElement('div');
-    dailyExample.className = 'helper-text';
-    dailyExample.textContent = 'Example: sensor.daily_production';
-    container.appendChild(dailyExample);
-
-    container.appendChild(this._createEntityPicker('Daily Production Sensor', 'sensor_daily', config.sensor_daily));
-
-    const batTitle = document.createElement('div');
-    batTitle.className = 'section-title';
-    batTitle.textContent = 'Battery Sensors';
-    container.appendChild(batTitle);
-
-    const batHelper = document.createElement('div');
-    batHelper.className = 'helper-text';
-    batHelper.textContent = 'Configure up to 4 batteries. Each battery needs SOC and Power sensors.';
-    container.appendChild(batHelper);
-
-    const bat1SocExample = document.createElement('div');
-    bat1SocExample.className = 'helper-text';
-    bat1SocExample.textContent = 'Example SOC: sensor.battery_soc';
-    container.appendChild(bat1SocExample);
-    container.appendChild(this._createEntityPicker('Battery 1 SOC', 'sensor_bat1_soc', config.sensor_bat1_soc));
-
-    const bat1PowExample = document.createElement('div');
-    bat1PowExample.className = 'helper-text';
-    bat1PowExample.textContent = 'Example Power: sensor.battery_power';
-    container.appendChild(bat1PowExample);
-    container.appendChild(this._createEntityPicker('Battery 1 Power', 'sensor_bat1_power', config.sensor_bat1_power));
-    container.appendChild(this._createEntityPicker('Battery 2 SOC (Optional)', 'sensor_bat2_soc', config.sensor_bat2_soc));
-    container.appendChild(this._createEntityPicker('Battery 2 Power (Optional)', 'sensor_bat2_power', config.sensor_bat2_power));
-    container.appendChild(this._createEntityPicker('Battery 3 SOC (Optional)', 'sensor_bat3_soc', config.sensor_bat3_soc));
-    container.appendChild(this._createEntityPicker('Battery 3 Power (Optional)', 'sensor_bat3_power', config.sensor_bat3_power));
-    container.appendChild(this._createEntityPicker('Battery 4 SOC (Optional)', 'sensor_bat4_soc', config.sensor_bat4_soc));
-    container.appendChild(this._createEntityPicker('Battery 4 Power (Optional)', 'sensor_bat4_power', config.sensor_bat4_power));
-
-    const otherTitle = document.createElement('div');
-    otherTitle.className = 'section-title';
-    otherTitle.textContent = 'Other Sensors';
-    container.appendChild(otherTitle);
-
-    const loadExample = document.createElement('div');
-    loadExample.className = 'helper-text';
-    loadExample.textContent = 'Example Load: sensor.home_consumption';
-    container.appendChild(loadExample);
-    container.appendChild(this._createEntityPicker('Home Load/Consumption', 'sensor_home_load', config.sensor_home_load));
-
-    const gridExample = document.createElement('div');
-    gridExample.className = 'helper-text';
-    gridExample.textContent = 'Example Grid: sensor.grid_power';
-    container.appendChild(gridExample);
-    container.appendChild(this._createEntityPicker('Grid Power', 'sensor_grid_power', config.sensor_grid_power));
-
-    container.appendChild(this._createSwitch('Invert Grid Values', 'invert_grid', config.invert_grid));
-
-    const gridHelper = document.createElement('div');
-    gridHelper.className = 'helper-text';
-    gridHelper.textContent = 'Invert grid power values if import/export is reversed';
-    container.appendChild(gridHelper);
-
-    const carTitle = document.createElement('div');
-    carTitle.className = 'section-title';
-    carTitle.textContent = 'EV Car (Optional)';
-    container.appendChild(carTitle);
-
-    container.appendChild(this._createEntityPicker('Car Power Sensor', 'sensor_car_power', config.sensor_car_power));
-    container.appendChild(this._createEntityPicker('Car SOC Sensor', 'sensor_car_soc', config.sensor_car_soc));
-    container.appendChild(this._createSwitch('Show Car SOC', 'show_car_soc', config.show_car_soc));
-    container.appendChild(this._createTextField('Car SOC Color', 'car_pct_color', config.car_pct_color || '#00FFFF'));
+    sections.forEach((section) => {
+      container.appendChild(this._createSection(section.title, section.helper, section.schema));
+    });
 
     return container;
   }
 
-  _buildTypographyContent(config) {
+  _buildTypographyContent() {
     const container = document.createElement('div');
     container.className = 'card-config';
-
-    const typographyTitle = document.createElement('div');
-    typographyTitle.className = 'section-title';
-    typographyTitle.textContent = 'Typography';
-    container.appendChild(typographyTitle);
-
-    container.appendChild(this._createSlider('Header Font Size', 'header_font_size', config.header_font_size ?? 16, 12, 32, 1, 'px'));
-    container.appendChild(this._createSlider('Daily Label Font Size', 'daily_label_font_size', config.daily_label_font_size ?? 12, 8, 24, 1, 'px'));
-    container.appendChild(this._createSlider('Daily Value Font Size', 'daily_value_font_size', config.daily_value_font_size ?? 20, 12, 32, 1, 'px'));
-    container.appendChild(this._createSlider('PV Text Font Size', 'pv_font_size', config.pv_font_size ?? 16, 12, 28, 1, 'px'));
-    container.appendChild(this._createSlider('Battery SOC Font Size', 'battery_soc_font_size', config.battery_soc_font_size ?? 20, 12, 32, 1, 'px'));
-    container.appendChild(this._createSlider('Battery Power Font Size', 'battery_power_font_size', config.battery_power_font_size ?? 14, 10, 28, 1, 'px'));
-    container.appendChild(this._createSlider('Load Font Size', 'load_font_size', config.load_font_size ?? 15, 10, 28, 1, 'px'));
-    container.appendChild(this._createSlider('Grid Font Size', 'grid_font_size', config.grid_font_size ?? 15, 10, 28, 1, 'px'));
-    container.appendChild(this._createSlider('Car Power Font Size', 'car_power_font_size', config.car_power_font_size ?? 15, 10, 28, 1, 'px'));
-    container.appendChild(this._createSlider('Car SOC Font Size', 'car_soc_font_size', config.car_soc_font_size ?? 12, 8, 24, 1, 'px'));
-
+    container.appendChild(this._createSection('Typography', 'Tune font sizes for each text block.', this._schemas.typography));
     return container;
   }
 
@@ -804,6 +610,11 @@ class LuminaEnergyCardEditor extends HTMLElement {
         text-transform: uppercase;
         font-weight: 600;
       }
+      .section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
       .card-config {
         display: flex;
         flex-direction: column;
@@ -819,37 +630,13 @@ class LuminaEnergyCardEditor extends HTMLElement {
         border-bottom: 1px solid var(--divider-color);
         padding-bottom: 4px;
       }
-      ha-textfield {
-        width: 100%;
-      }
-      ha-select {
-        width: 100%;
-      }
-      ha-switch {
-        padding: 16px 0;
-      }
-      .helper-text {
+      .section-helper {
         font-size: 0.9em;
         color: var(--secondary-text-color);
-        margin-top: -8px;
         margin-bottom: 8px;
       }
-      .switch-container {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 8px 0;
-      }
-      .slider-container {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding: 8px 0;
-      }
-      .slider-label {
-        font-size: 0.95em;
-        font-weight: 500;
-        color: var(--primary-text-color);
+      ha-form {
+        width: 100%;
       }
     `;
 
@@ -887,8 +674,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
     tabsContainer.appendChild(tabsEl);
 
     const activeContent = this._activeTab === 'typography'
-      ? this._buildTypographyContent(config)
-      : this._buildConfigContent(config);
+      ? this._buildTypographyContent()
+      : this._buildConfigContent();
 
     this.shadowRoot.appendChild(style);
     this.shadowRoot.appendChild(tabsContainer);
