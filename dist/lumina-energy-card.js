@@ -1537,7 +1537,7 @@ class LuminaEnergyCard extends HTMLElement {
   }
 
   static get version() {
-    return '1.1.20';
+    return '1.1.21';
   }
 }
 
