@@ -41,9 +41,15 @@ background_image: /local/community/lumina-energy-card/lumina_background.jpg
 
 ### Useful Options
 
-- `update_interval`: polling cadence in seconds (10–60, default 30)
+- `update_interval`: polling cadence in seconds (0–60, default 30; 0 enables live refresh)
 - `display_unit`: choose `W` or `kW`
+- `animation_speed_factor`: flow speed multiplier (-3 to 3, default 1; 0 pauses, negatives reverse)
+- `animation_style`: choose the flow motif (`dashes`, `dots`, `arrows`)
 - `sensor_pv_total`: optional aggregate PV production sensor for the total line
 - `show_pv_strings`: display both the total and each PV string value simultaneously
+- `sensor_grid_import` / `sensor_grid_export`: optional dedicated import/export sensors (positive values)
+- `grid_activity_threshold`: minimum grid magnitude (W) before grid flow animates (default 100)
+- `grid_threshold_warning` / `grid_threshold_critical`: change grid colours when magnitude reaches warning/critical levels
 - `invert_grid`: flips grid import/export sign if needed
 - `sensor_car_power` and `sensor_car_soc`: enable EV panel when provided
+- `show_car_soc`: toggle the Electric Vehicle panel (power + SOC)

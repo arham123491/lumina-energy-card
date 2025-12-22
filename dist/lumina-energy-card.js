@@ -1,7 +1,7 @@
 /**
  * Lumina Energy Card
  * Custom Home Assistant card for energy flow visualization
- * Version: 1.1.24
+ * Version: 1.1.20
  * Tested with Home Assistant 2025.12+
  */
 const BATTERY_GEOMETRY = { X: 260, Y_BASE: 350, WIDTH: 55, MAX_HEIGHT: 84 };
@@ -1468,7 +1468,7 @@ class LuminaEnergyCard extends HTMLElement {
   }
 
   static get version() {
-    return '1.1.24';
+    return '1.1.20';
   }
 }
 

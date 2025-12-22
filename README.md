@@ -1,7 +1,7 @@
 # Lumina Energy Card
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-![Version](https://img.shields.io/badge/version-1.1.18--gsap4-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.20-blue.svg)
 
 Limuna Energy Card repository is <https://github.com/ratava/lumina-energy-card>.
 
@@ -35,7 +35,8 @@ Lumina Energy Card is a Home Assistant custom Lovelace card that renders animate
 - Up to six PV sensors with smart per-string or totalised labels
 - Up to four battery systems with SOC averaging and liquid-fill battery visualisation
 - Animated grid, load, PV, battery and EV flows with dynamic colour, speed, and selectable dash/dot/arrow styles
-- Adjustable animation speed multiplier (-3x to 3x, default 0.5x, pause/reverse supported) and visibility thresholds
+- Configurable grid animation threshold (default 100 W) to suppress low-level import/export chatter
+- Adjustable animation speed multiplier (-3x to 3x, default 1x, pause/reverse supported) and per-flow visibility thresholds
 - Optional EV panel with power and SOC display, configurable colour, and typography
 - Daily production badge plus full typography controls for header, PV, battery, load, grid, and EV text
 - Update interval slider (0–60 s, default 30 s) with optional real-time refresh when set to 0
@@ -95,7 +96,7 @@ background_image: /local/community/lumina-energy-card/lumina_background.jpg
 | `language` | string | `en` | Accepts `en`, `it`, or `de` |
 | `display_unit` | string | `kW` | Display values in `W` or `kW` |
 | `update_interval` | number | `30` | Refresh cadence (0–60, step 5; 0 disables throttling) |
-| `animation_speed_factor` | number | `0.5` | Flow animation multiplier (-3–3, 0 pauses, negatives reverse) |
+| `animation_speed_factor` | number | `1` | Flow animation multiplier (-3–3, 0 pauses, negatives reverse) |
 | `animation_style` | string | `dashes` | Flow animation motif (`dashes`, `dots`, `arrows`) |
 | `header_font_size` | number | `16` | Typography for the header (12–32 px) |
 | `pv_font_size` | number | `16` | Typography for PV text (12–28 px) |
@@ -115,10 +116,17 @@ background_image: /local/community/lumina-energy-card/lumina_background.jpg
 | `sensor_bat1_power` | entity | — | Battery power sensor (required) |
 | `sensor_home_load` | entity | — | Home load sensor (required) |
 | `sensor_grid_power` | entity | — | Grid import/export sensor (required) |
+| `sensor_grid_import` | entity | — | Optional import-only sensor (positive values) |
+| `sensor_grid_export` | entity | — | Optional export-only sensor (positive values) |
+| `grid_activity_threshold` | number | `100` | Minimum absolute grid power (W) before grid flow animates |
+| `grid_threshold_warning` | number | — | Trigger warning colour when grid magnitude meets this value (W or kW) |
+| `grid_warning_color` | string | — | Warning colour applied at the warning threshold |
+| `grid_threshold_critical` | number | — | Trigger critical colour when magnitude meets this value (W or kW) |
+| `grid_critical_color` | string | — | Critical colour applied at the critical threshold |
 | `invert_grid` | boolean | `false` | Flip grid sign if needed |
 | `sensor_car_power` | entity | — | Optional EV charging power |
 | `sensor_car_soc` | entity | — | Optional EV SOC sensor |
-| `show_car_soc` | boolean | `false` | Enable EV SOC text |
+| `show_car_soc` | boolean | `false` | Show Electric Vehicle panel (power and SOC) |
 | `car_pct_color` | string | `#00FFFF` | EV SOC text colour |
 
 ### Background & Troubleshooting (EN)
@@ -136,6 +144,7 @@ background_image: /local/community/lumina-energy-card/lumina_background.jpg
 
 ### Changelog (EN)
 
+- **1.1.20 (2025)** – Tuned arrow animation scaling, added grid animation threshold, EV panel toggle, and documentation refresh.
 - **1.1.18 (2025)** – Added selectable flow animation styles (dashes, dots, arrows) and refreshed documentation.
 - **1.1.13 (2025)** – Added smooth flow duration easing with dynamic rate scaling, cleanup guards, and a 0s update interval option for real-time refresh.
 - **1.1.1 (2025)** – Polished localisation text and prepped packaging for the single-file release.
@@ -161,13 +170,13 @@ Lumina Energy Card è una scheda Lovelace per Home Assistant che offre grafica a
 - Fino a 6 sensori fotovoltaici con etichettatura intelligente
 - Fino a 4 batterie con media SOC e visualizzazione liquida 3D
 - Flussi animati con colori dinamici e stili selezionabili (tratteggi, punti, frecce) per rete, casa, FV, batterie ed EV
-- Flussi animati con colori dinamici e stili selezionabili (tratteggi, punti, frecce) per rete, casa, FV, batterie ed EV
+- Soglia di attivazione configurabile per i flussi di rete (default 100 W) per nascondere import/export minimi
 - Soglie avviso/emergenza import-export allineate all'unità di visualizzazione (W/kW)
-- Moltiplicatore di velocità per regolare le animazioni dei flussi (-3x a 3x, default 0,5x, pausa/inversione)
+- Moltiplicatore di velocità per regolare le animazioni dei flussi (-3x a 3x, default 1x, pausa/inversione)
 - Pannello EV opzionale con potenza e SOC personalizzabili
 - Badge produzione giornaliera, titolo, sfondo e unità configurabili
 - Controlli tipografici per titolo, FV, batterie, carichi, rete ed EV
-- Slider intervallo aggiornamento (10–60 s) con blocco degli aggiornamenti durante l'editing
+- Slider intervallo aggiornamento (0–60 s) con refresh continuo se impostato a 0
 
 ### Installazione HACS (IT)
 
@@ -220,13 +229,13 @@ Die Lumina Energy Card zeigt animierte Energieflüsse in Home Assistant, unterst
 - Bis zu 6 PV-Sensoren mit intelligenter Beschriftung
 - Bis zu 4 Batteriesysteme mit SOC-Durchschnitt und kombiniertem Leistungswert
 - Animierte Leitungen für Netz, Haus, PV, Batterie und EV mit Farbcodierung, Geschwindigkeitsregelung und wählbaren Strich/Punkt/Pfeil-Stilen
-- Animierte Leitungen für Netz, Haus, PV, Batterie und EV mit Farbcodierung, Geschwindigkeitsregelung und wählbaren Strich/Punkt/Pfeil-Stilen
+- Konfigurierbare Netzfluss-Animationsschwelle (Standard 100 W) blendet minimale Import/Exportwerte aus
 - Warn- und kritische Import/Export-Schwellenwerte passen sich automatisch an die gewählte Anzeigeeinheit (W/kW) an
-- Einstellbarer Animationsfaktor für schnellere oder langsamere Flussvisualisierung (-3x bis 3x, Standard 0,5x, Pause/Rücklauf)
+- Einstellbarer Animationsfaktor für schnellere oder langsamere Flussvisualisierung (-3x bis 3x, Standard 1x, Pause/Rücklauf)
 - Optionales EV-Panel inklusive SOC-Farbe
 - Tagesertrag, Kartentitel, Hintergrund und Einheiten anpassbar
 - Typografie-Regler für Titel, PV, Batterie, Last, Netz und EV-Text
-- Update-Intervall-Regler (10–60 s) verhindert unnötige Aktualisierungen im Editor
+- Update-Intervall-Regler (0–60 s) ermöglicht Live-Refresh bei 0 s
 
 ### Installation HACS (DE)
 
