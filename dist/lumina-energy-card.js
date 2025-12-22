@@ -2200,6 +2200,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           grid_threshold_critical: { label: 'Netz Kritische Schwelle', helper: 'Farbe wechseln, wenn diese Magnitude erreicht wird. Verwendet die ausgewaehlte Anzeigeeinheit.' },
           grid_critical_color: { label: 'Netz Kritische Farbe', helper: 'Farbe bei Erreichen der kritischen Schwelle.' },
           invert_grid: { label: 'Netzwerte invertieren', helper: 'Aktivieren, wenn Import/Export vertauscht ist.' },
+          invert_battery: { label: 'Batterie-Werte invertieren', helper: 'Aktivieren, wenn Lade-/Entlade-Polarität vertauscht ist.' },
           sensor_car_power: { label: 'Fahrzeugleistung Sensor 1' },
           sensor_car_soc: { label: 'Fahrzeug SOC Sensor 1' },
           car1_label: { label: 'Bezeichnung Fahrzeug 1', helper: 'Text neben den Werten des ersten EV.' },
@@ -2255,7 +2256,15 @@ class LuminaEnergyCardEditor extends HTMLElement {
 
   _getLocaleStrings() {
     const lang = this._currentLanguage();
-    return this._strings[lang] || this._strings.en;
+    const base = this._strings.en || {};
+    const selected = this._strings[lang] || {};
+    // Merge top-level sections, fields, and options so missing entries fall back to English
+    const merged = {
+      sections: { ...(base.sections || {}), ...(selected.sections || {}) },
+      fields: { ...(base.fields || {}), ...(selected.fields || {}) },
+      options: { ...(base.options || {}), ...(selected.options || {}) }
+    };
+    return merged;
   }
 
   _createOptionDefs(localeStrings) {
