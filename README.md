@@ -18,7 +18,7 @@ Limuna Energy Card repository is <https://github.com/ratava/lumina-energy-card>.
 
 1. Open HACS in Home Assistant and choose **Frontend**.
 1. Click the three-dot menu and select **Custom repositories**.
-1. Paste `https://github.com/ratava/lumina-energy-card`, set the category to **Frontend**, and click **Add**.
+1. Paste `https://github.com/ratava/lumina-energy-card`, set the category to **Dashboard**, and click **Add**.
 1. Close the dialog, locate **Lumina Energy Card** in the Frontend list, and install it.
 1. Restart Home Assistant if requested, then add the card from the Lovelace visual editor.
 
@@ -48,7 +48,7 @@ Lumina Energy Card is a Home Assistant custom Lovelace card that renders animate
 
 1. Open HACS in Home Assistant and choose **Frontend**.
 1. Use the three-dot menu → **Custom repositories**.
-1. Enter `https://github.com/ratava/lumina-energy-card`, pick **Frontend**, and click **Add**.
+1. Enter `https://github.com/ratava/lumina-energy-card`, pick **Dashboard**, and click **Add**.
 1. Locate **Lumina Energy Card** under Frontend and click **Install**.
 1. Restart Home Assistant if prompted.
 
@@ -376,7 +376,7 @@ Lumina Energy Card è una scheda Lovelace per Home Assistant che offre grafica a
 
 1. Apri HACS → **Frontend**.
 1. Menu a tre puntini → **Repository personalizzati**.
-1. Inserisci `https://github.com/ratava/lumina-energy-card`, seleziona **Frontend** e premi **Aggiungi**.
+1. Inserisci `https://github.com/ratava/lumina-energy-card`, seleziona **PLANCIA** e premi **Aggiungi**.
 1. Installa **Lumina Energy Card** dalla sezione Frontend.
 1. Riavvia Home Assistant se richiesto.
 
