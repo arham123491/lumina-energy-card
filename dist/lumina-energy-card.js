@@ -2540,7 +2540,49 @@ class LuminaEnergyCardEditor extends HTMLElement {
       fields: { ...(base.fields || {}), ...(selected.fields || {}) },
       options: { ...(base.options || {}), ...(selected.options || {}) }
     };
+
+    // If i18next is loaded, prefer its translations where available.
+    if (typeof window !== 'undefined' && window.i18next && typeof window.i18next.t === 'function') {
+      const t = (key, fallback) => this._i18nT(key, fallback);
+      // Sections
+      Object.keys(merged.sections || {}).forEach((secKey) => {
+        const sec = merged.sections[secKey] || {};
+        sec.title = t(`sections.${secKey}.title`, sec.title || '');
+        sec.helper = t(`sections.${secKey}.helper`, sec.helper || '');
+        merged.sections[secKey] = sec;
+      });
+      // Fields
+      Object.keys(merged.fields || {}).forEach((fieldKey) => {
+        const f = merged.fields[fieldKey] || {};
+        f.label = t(`fields.${fieldKey}.label`, f.label || '');
+        f.helper = t(`fields.${fieldKey}.helper`, f.helper || '');
+        merged.fields[fieldKey] = f;
+      });
+      // Options: keep structure but attempt to translate human labels where possible
+      try {
+        if (merged.options && Array.isArray(merged.options.languages)) {
+          merged.options.languages = merged.options.languages.map((opt) => ({
+            value: opt.value,
+            label: t(`options.languages.${opt.value}`, opt.label || opt.value)
+          }));
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
     return merged;
+  }
+
+  _i18nT(key, fallback) {
+    try {
+      if (typeof window !== 'undefined' && window.i18next && typeof window.i18next.t === 'function') {
+        const v = window.i18next.t(key);
+        if (v && v !== key) return v;
+      }
+    } catch (e) {
+      // ignore
+    }
+    return fallback;
   }
 
   _createOptionDefs(localeStrings) {
