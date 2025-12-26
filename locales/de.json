@@ -42,7 +42,7 @@
     "sensor_grid_export": { "label": "Netzexport Sensor", "helper": "Optionale Entitaet fuer positiven Netzexport." },
 
     "pv_primary_color": { "label": "PV 1 Flussfarbe", "helper": "Farbe fuer die primaere PV-Animationslinie." },
-    "pv_tot_color": { "label": "PV TOT Farbe", "helper": "Farbe fuer die PV TOT Zeile." },
+    "pv_tot_color": { "label": "PV Gesamt Farbe", "helper": "Farbe fuer die PV Gesamt Zeile." },
     "pv_secondary_color": { "label": "PV 2 Flussfarbe", "helper": "Farbe fuer die zweite PV-Linie (falls vorhanden)." },
     "pv_string1_color": { "label": "PV String 1 Farbe", "helper": "Ueberschreibt die Farbe fuer S1. Leer lassen um die PV-Gesamtfarbe zu nutzen." },
     "pv_string2_color": { "label": "PV String 2 Farbe", "helper": "Ueberschreibt die Farbe fuer S2. Leer lassen um die PV-Gesamtfarbe zu nutzen." },
@@ -114,5 +114,11 @@
       { "value": "dots", "label": "Punkte" },
       { "value": "arrows", "label": "Pfeile" }
     ]
+  },
+  "view": {
+    "daily": "TAGESERTRAG",
+    "pv_tot": "PV GESAMT",
+    "car1": "FAHRZEUG 1",
+    "car2": "FAHRZEUG 2"
   }
 }

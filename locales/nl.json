@@ -1,0 +1,45 @@
+{
+  "sections": {
+    "general": { "title": "Algemene instellingen", "helper": "Kaart metadata, achtergrond, taal en update-interval." },
+    "entities": { "title": "Entiteit selectie", "helper": "Kies de PV-, batterij-, net-, verbruik- en EV-entiteiten die door de kaart worden gebruikt. Minimaal moet de PV-totaal sensor of uw PV-string arrays worden opgegeven." },
+    "colors": { "title": "Kleuren & Drempels", "helper": "Configureer netdrempels en accentkleuren voor stromen en EV-weergave." },
+    "typography": { "title": "Typografie", "helper": "Stel de lettergrootten voor de kaart fijn af." },
+    "about": { "title": "Over", "helper": "Credits, versie en nuttige links." }
+  },
+  "fields": {
+    "card_title": { "label": "Kaart titel", "helper": "Titel bovenaan de kaart. Laat leeg om uit te schakelen." },
+    "background_image": { "label": "Achtergrond afbeelding pad", "helper": "Pad naar de achtergrondafbeelding (bijv. /local/community/lumina-energy-card/lumina_background.jpg)." },
+    "language": { "label": "Taal", "helper": "Kies de taal van de editor." },
+    "display_unit": { "label": "Weergave-eenheid", "helper": "Eenheid die wordt gebruikt bij het formatteren van vermogen." },
+    "update_interval": { "label": "Update-interval", "helper": "Verversingsinterval voor kaartupdates (0 schakelt throttling uit)." },
+    "animation_speed_factor": { "label": "Animatie snelheid factor", "helper": "Pas de animatiesnelheid aan (-3x tot 3x). Zet 0 om te pauzeren; negatief keert richting om." },
+    "animation_style": { "label": "Animatie stijl", "helper": "Kies het animatiemotief voor stromen (strepen, stippen of pijlen)." },
+
+    "sensor_pv_total": { "label": "PV totaal sensor", "helper": "Optionele geaggregeerde productiesensor die als gecombineerde lijn wordt weergegeven." },
+    "sensor_daily": { "label": "Dagelijkse productie sensor (Vereist)", "helper": "Sensor die de dagelijkse productietotalen rapporteert." }
+  },
+  "options": {
+    "languages": [
+      { "value": "en", "label": "English" },
+      { "value": "it", "label": "Italiano" },
+      { "value": "de", "label": "Deutsch" },
+      { "value": "fr", "label": "Français" },
+      { "value": "nl", "label": "Nederlands" }
+    ],
+    "display_units": [
+      { "value": "W", "label": "Watt (W)" },
+      { "value": "kW", "label": "Kilowatt (kW)" }
+    ],
+    "animation_styles": [
+      { "value": "dashes", "label": "Strepen (standaard)" },
+      { "value": "dots", "label": "Punten" },
+      { "value": "arrows", "label": "Pijlen" }
+    ]
+  },
+  "view": {
+    "daily": "DAGOPBRENGST",
+    "pv_tot": "PV TOTAAL",
+    "car1": "AUTO 1",
+    "car2": "AUTO 2"
+  }
+}

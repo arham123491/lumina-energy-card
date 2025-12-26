@@ -1,7 +1,7 @@
 /**
  * Lumina Energy Card
  * Custom Home Assistant card for energy flow visualization
- * Version: 1.1.22
+ * Version: 1.1.25
  * Tested with Home Assistant 2025.12+
  */
 const BATTERY_GEOMETRY = { X: 260, Y_BASE: 350, WIDTH: 55, MAX_HEIGHT: 84 };
@@ -1114,10 +1114,27 @@ class LuminaEnergyCard extends HTMLElement {
 
     // Language
     const lang = config.language || 'en';
-    const dict_daily = { it: 'PRODUZIONE OGGI', en: 'DAILY YIELD', de: 'TAGESERTRAG' };
-    const dict_pv_tot = { it: 'PV TOT', en: 'PV TOT', de: 'PV GES' };
-    const label_daily = dict_daily[lang] || dict_daily['en'];
-    const label_pv_tot = dict_pv_tot[lang] || dict_pv_tot['en'];
+    // Prefer locale strings (external or built-in) when available
+    let label_daily = null;
+    let label_pv_tot = null;
+    try {
+      const localeStrings = (typeof this._getLocaleStrings === 'function') ? this._getLocaleStrings() : null;
+      if (localeStrings && localeStrings.view) {
+        label_daily = localeStrings.view.daily || null;
+        label_pv_tot = localeStrings.view.pv_tot || null;
+      }
+    } catch (e) {
+      // ignore
+    }
+    // Fallback to small built-in dictionaries if locales don't provide values
+    if (!label_daily) {
+      const dict_daily = { it: 'PRODUZIONE OGGI', en: 'DAILY YIELD', de: 'TAGESERTRAG' };
+      label_daily = dict_daily[lang] || dict_daily['en'];
+    }
+    if (!label_pv_tot) {
+      const dict_pv_tot = { it: 'PV TOTALE', en: 'PV TOTAL', de: 'PV GESAMT' };
+      label_pv_tot = dict_pv_tot[lang] || dict_pv_tot['en'];
+    }
 
     // 3D coordinates
     const current_h = (avg_soc / 100) * BATTERY_GEOMETRY.MAX_HEIGHT;
@@ -1202,7 +1219,7 @@ class LuminaEnergyCard extends HTMLElement {
     const liquid_fill = (avg_soc <= batteryLowThreshold) ? batteryFillLowColor : batteryFillHighColor;
     const show_double_flow = (pv_primary_w > 10 && pv_secondary_w > 10);
     const pvLinesRaw = [];
-    // If Array 2 is producing, show totals only: PV TOT, Array 1 total, Array 2 total
+    // If Array 2 is producing, show totals only: PV TOTAL, Array 1 total, Array 2 total
     if (pv_secondary_w > 10) {
       pvLinesRaw.push({ key: 'pv-total', text: `${label_pv_tot}: ${this.formatPower(total_pv_w, use_kw)}`, fill: pvTotColor });
       pvLinesRaw.push({ key: 'pv-primary-total', text: `Array 1: ${this.formatPower(pv_primary_w, use_kw)}`, fill: pvPrimaryColor });
@@ -1884,7 +1901,7 @@ class LuminaEnergyCard extends HTMLElement {
   }
 
   static get version() {
-    return '1.1.22';
+    return '1.1.25';
   }
 }
 
@@ -1958,7 +1975,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_grid_power: { label: 'Grid Power', helper: 'Positive/negative grid flow sensor. Specify either this sensor or both Grid Import Sensor and Grid Export Sensor.' },
           sensor_grid_import: { label: 'Grid Import Sensor', helper: 'Optional entity reporting grid import (positive) power.' },
           sensor_grid_export: { label: 'Grid Export Sensor', helper: 'Optional entity reporting grid export (positive) power.' },
-          pv_tot_color: { label: 'PV Total Color', helper: 'Colour applied to the PV TOT text line.' },
+          pv_tot_color: { label: 'PV Total Color', helper: 'Colour applied to the PV TOTAL text line.' },
           pv_primary_color: { label: 'PV 1 Flow Color', helper: 'Colour used for the primary PV animation line.' },
           pv_secondary_color: { label: 'PV 2 Flow Color', helper: 'Colour used for the secondary PV animation line when available.' },
           pv_string1_color: { label: 'PV String 1 Color', helper: 'Override for S1 in the PV list. Leave blank to inherit the PV total color.' },
@@ -2024,7 +2041,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'en', label: 'English' },
             { value: 'it', label: 'Italiano' },
             { value: 'de', label: 'Deutsch' },
-            { value: 'fr', label: 'Français' }
+            { value: 'fr', label: 'Français' },
+            { value: 'nl', label: 'Nederlands' }
           ],
           display_units: [
             { value: 'W', label: 'Watts (W)' },
@@ -2036,6 +2054,13 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'arrows', label: 'Arrows' }
           ]
         }
+      ,
+      view: {
+        daily: 'DAILY YIELD',
+        pv_tot: 'PV TOTAL',
+        car1: 'CAR 1',
+        car2: 'CAR 2'
+      }
       },
       it: {
         sections: {
@@ -2080,7 +2105,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_grid_import: { label: 'Sensore import rete', helper: 'Entita opzionale che riporta la potenza di import.' },
           sensor_grid_export: { label: 'Sensore export rete', helper: 'Entita opzionale che riporta la potenza di export.' },
           pv_primary_color: { label: 'Colore flusso FV 1', helper: 'Colore utilizzato per l animazione FV principale.' },
-          pv_tot_color: { label: 'Colore PV TOT', helper: 'Colore applicato alla riga PV TOT.' },
+          pv_tot_color: { label: 'Colore PV TOTALE', helper: 'Colore applicato alla riga PV TOTALE.' },
           pv_secondary_color: { label: 'Colore flusso FV 2', helper: 'Colore utilizzato per la seconda linea FV quando presente.' },
           pv_string1_color: { label: 'Colore stringa FV 1', helper: 'Sovrascrive il colore di S1. Lascia vuoto per usare il colore totale FV.' },
           pv_string2_color: { label: 'Colore stringa FV 2', helper: 'Sovrascrive il colore di S2. Lascia vuoto per usare il colore totale FV.' },
@@ -2145,7 +2170,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'en', label: 'Inglese' },
             { value: 'it', label: 'Italiano' },
             { value: 'de', label: 'Tedesco' },
-            { value: 'fr', label: 'Francese' }
+            { value: 'fr', label: 'Francese' },
+            { value: 'nl', label: 'Olandese' }
           ],
           display_units: [
             { value: 'W', label: 'Watt (W)' },
@@ -2157,6 +2183,13 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'arrows', label: 'Frecce' }
           ]
         }
+      ,
+      view: {
+        daily: 'PRODUZIONE OGGI',
+        pv_tot: 'PV TOTALE',
+        car1: 'AUTO 1',
+        car2: 'AUTO 2'
+      }
       },
       de: {
         sections: {
@@ -2201,7 +2234,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_grid_import: { label: 'Netzimport Sensor', helper: 'Optionale Entitaet fuer positiven Netzimport.' },
           sensor_grid_export: { label: 'Netzexport Sensor', helper: 'Optionale Entitaet fuer positiven Netzexport.' },
           pv_primary_color: { label: 'PV 1 Flussfarbe', helper: 'Farbe fuer die primaere PV-Animationslinie.' },
-          pv_tot_color: { label: 'PV TOT Farbe', helper: 'Farbe fuer die PV TOT Zeile.' },
+          pv_tot_color: { label: 'PV Gesamt Farbe', helper: 'Farbe fuer die PV Gesamt Zeile.' },
           pv_secondary_color: { label: 'PV 2 Flussfarbe', helper: 'Farbe fuer die zweite PV-Linie (falls vorhanden).' },
           pv_string1_color: { label: 'PV String 1 Farbe', helper: 'Ueberschreibt die Farbe fuer S1. Leer lassen um die PV-Gesamtfarbe zu nutzen.' },
           pv_string2_color: { label: 'PV String 2 Farbe', helper: 'Ueberschreibt die Farbe fuer S2. Leer lassen um die PV-Gesamtfarbe zu nutzen.' },
@@ -2262,7 +2295,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'en', label: 'Englisch' },
             { value: 'it', label: 'Italienisch' },
             { value: 'de', label: 'Deutsch' },
-            { value: 'fr', label: 'Französisch' }
+            { value: 'fr', label: 'Französisch' },
+            { value: 'nl', label: 'Niederländisch' }
           ],
           display_units: [
             { value: 'W', label: 'Watt (W)' },
@@ -2274,6 +2308,13 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'arrows', label: 'Pfeile' }
           ]
         }
+      ,
+      view: {
+        daily: 'TAGESERTRAG',
+        pv_tot: 'PV GESAMT',
+        car1: 'FAHRZEUG 1',
+        car2: 'FAHRZEUG 2'
+      }
       },
       fr: {
         sections: {
@@ -2323,7 +2364,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_grid_power: { label: 'Puissance réseau', helper: 'Capteur de flux réseau positif/négatif. Spécifiez soit ce capteur soit les capteurs Import/Export réseau.' },
           sensor_grid_import: { label: 'Capteur import réseau', helper: 'Entité optionnelle rapportant l import réseau (valeurs positives).' },
           sensor_grid_export: { label: 'Capteur export réseau', helper: 'Entité optionnelle rapportant l export réseau (valeurs positives).' },
-          pv_tot_color: { label: 'Couleur PV totale', helper: 'Couleur appliquée à la ligne/texte PV TOT.' },
+          pv_tot_color: { label: 'Couleur PV totale', helper: 'Couleur appliquée à la ligne/texte PV TOTAL.' },
           pv_primary_color: { label: 'Couleur flux PV 1', helper: 'Couleur utilisée pour la ligne d animation PV primaire.' },
           pv_secondary_color: { label: 'Couleur flux PV 2', helper: 'Couleur utilisée pour la ligne d animation PV secondaire si disponible.' },
           pv_string1_color: { label: 'Couleur Chaîne PV 1', helper: 'Remplace la couleur pour S1 dans la liste PV. Laisser vide pour hériter de la couleur PV totale.' },
@@ -2386,7 +2427,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'en', label: 'Anglais' },
             { value: 'it', label: 'Italien' },
             { value: 'de', label: 'Allemand' },
-            { value: 'fr', label: 'Français' }
+            { value: 'fr', label: 'Français' },
+            { value: 'nl', label: 'Néerlandais' }
           ],
           display_units: [
             { value: 'W', label: 'Watts (W)' },
@@ -2397,6 +2439,30 @@ class LuminaEnergyCardEditor extends HTMLElement {
             { value: 'dots', label: 'Points' },
             { value: 'arrows', label: 'Flèches' }
           ]
+        }
+      ,
+      view: {
+        daily: 'PRODUCTION DU JOUR',
+        pv_tot: 'PV TOTAL',
+        car1: 'VÉHICULE 1',
+        car2: 'VÉHICULE 2'
+      }
+      },
+      nl: {
+        options: {
+          languages: [
+            { value: 'en', label: 'English' },
+            { value: 'it', label: 'Italiano' },
+            { value: 'de', label: 'Deutsch' },
+            { value: 'fr', label: 'Français' },
+            { value: 'nl', label: 'Nederlands' }
+          ]
+        },
+        view: {
+          daily: 'DAGOPBRENGST',
+          pv_tot: 'PV TOTAAL',
+          car1: 'AUTO 1',
+          car2: 'AUTO 2'
         }
       },
     };
@@ -2478,8 +2544,25 @@ class LuminaEnergyCardEditor extends HTMLElement {
       return; // no external locales available
     }
 
+    // Support two index formats:
+    // - Array of language codes: ["en","it"]
+    // - Array of objects: [{ code: 'en', names: { en: 'English', it: 'Inglese' } }, ...]
+    const indexEntries = [];
+    if (typeof index[0] === 'string') {
+      for (const code of index) {
+        if (typeof code === 'string' && code.length === 2) indexEntries.push({ code });
+      }
+    } else if (typeof index[0] === 'object' && index[0].code) {
+      for (const entry of index) {
+        if (entry && typeof entry.code === 'string') indexEntries.push(entry);
+      }
+    }
+
+    if (indexEntries.length === 0) return;
+
     const resources = {};
-    for (const lang of index) {
+    for (const entry of indexEntries) {
+      const lang = entry.code;
       const langPath = `${this._localesBase}locales/${lang}.json`;
       const data = await this._tryFetchJson(langPath);
       if (data) {
@@ -2503,6 +2586,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
 
     // Merge loaded resources into internal _strings so existing logic can use them
     this._externalLocales = resources;
+    // Keep a copy of the parsed index entries for option labeling
+    this._localesIndex = indexEntries;
     for (const [lang, data] of Object.entries(resources)) {
       this._strings[lang] = data;
     }
@@ -2514,9 +2599,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
   _onLocalesLoaded() {
     try {
       this._forceRender = true;
-      if (this._isEditorActive()) {
-        this.render();
-      }
+      // Force an immediate re-render so runtime labels update when locales arrive
+      try { this.render(); } catch (e) { /* ignore render errors */ }
     } catch (e) {
       // ignore
     }
@@ -2594,12 +2678,28 @@ class LuminaEnergyCardEditor extends HTMLElement {
   }
 
   _getAvailableLanguageOptions(localeStrings) {
-    const keys = this._strings ? Object.keys(this._strings) : [];
-    const unique = Array.from(new Set(keys)).filter(k => typeof k === 'string' && k.length === 2);
-    const options = unique.map((lang) => {
-      const label = (localeStrings && localeStrings.options && Array.isArray(localeStrings.options.languages))
-        ? (localeStrings.options.languages.find((o) => o.value === lang) || {}).label
-        : null;
+    const displayLang = this._currentLanguage();
+    let codes = [];
+    if (Array.isArray(this._localesIndex) && this._localesIndex.length > 0) {
+      codes = this._localesIndex.map(e => e.code).filter(Boolean);
+    } else {
+      const keys = this._strings ? Object.keys(this._strings) : [];
+      codes = Array.from(new Set(keys)).filter(k => typeof k === 'string' && k.length === 2);
+    }
+
+    const options = codes.map((lang) => {
+      let label = null;
+      // Prefer names provided in index.json (translated names per language)
+      if (Array.isArray(this._localesIndex)) {
+        const entry = this._localesIndex.find(e => e && e.code === lang);
+        if (entry && entry.names) {
+          label = entry.names[displayLang] || entry.names.en || Object.values(entry.names)[0];
+        }
+      }
+      // Fallback to built-in options block if available
+      if (!label && localeStrings && localeStrings.options && Array.isArray(localeStrings.options.languages)) {
+        label = (localeStrings.options.languages.find((o) => o.value === lang) || {}).label;
+      }
       return { value: lang, label: label || lang };
     });
     // Ensure English is always present and first
@@ -2966,8 +3066,10 @@ class LuminaEnergyCardEditor extends HTMLElement {
 
   _createForm(schema) {
     const hasColorFields = schema.some(field => field.selector && field.selector.color_picker);
+    // Force custom rendering when language is present so we can use a native dropdown
+    const hasLanguageField = schema.some(field => field.name === 'language');
     
-    if (hasColorFields) {
+    if (hasColorFields || hasLanguageField) {
       return this._createCustomForm(schema);
     }
     
@@ -3102,7 +3204,32 @@ class LuminaEnergyCardEditor extends HTMLElement {
       this._debouncedConfigChanged(this._config, true);
     });
 
-    wrapper.appendChild(form);
+    // Render the language field as a native dropdown to support very long lists
+    if (field.name === 'language') {
+      const select = document.createElement('select');
+      select.style.padding = '8px';
+      select.style.border = '1px solid var(--divider-color)';
+      select.style.borderRadius = '4px';
+      select.style.background = 'var(--card-background-color)';
+      select.style.color = 'var(--primary-text-color)';
+      const localeStrings = this._getLocaleStrings();
+      const opts = this._getAvailableLanguageOptions(localeStrings);
+      opts.forEach((o) => {
+        const opt = document.createElement('option');
+        opt.value = o.value;
+        opt.textContent = o.label || o.value;
+        select.appendChild(opt);
+      });
+      select.value = value || (this._defaults && this._defaults.language) || 'en';
+      select.addEventListener('change', (e) => {
+        this._updateFieldValue(field.name, e.target.value);
+        this._debouncedConfigChanged(this._config, true);
+      });
+      select.addEventListener('blur', () => this._debouncedConfigChanged(this._config, true));
+      wrapper.appendChild(select);
+    } else {
+      wrapper.appendChild(form);
+    }
     return wrapper;
   }
 

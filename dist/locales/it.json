@@ -1,0 +1,215 @@
+{
+  "sections": {
+    "general": {
+      "title": "Impostazioni generali",
+      "helper": "Metadati della scheda, sfondo, lingua e frequenza di aggiornamento."
+    },
+    "entities": {
+      "title": "Selezione entità",
+      "helper": "Seleziona le entità PV, batteria, rete, carico ed EV utilizzate dalla scheda. Come minimo deve essere specificato il sensore PV totale o le stringhe PV."
+    },
+    "colors": {
+      "title": "Colori e soglie",
+      "helper": "Configura le soglie della rete e i colori di evidenziazione per flussi ed EV."
+    },
+    "typography": {
+      "title": "Tipografia",
+      "helper": "Regola con precisione le dimensioni dei caratteri utilizzati nella scheda."
+    },
+    "about": {
+      "title": "Informazioni",
+      "helper": "Crediti, versione e link utili."
+    }
+  },
+  "fields": {
+    "card_title": {
+      "label": "Titolo scheda",
+      "helper": "Titolo visualizzato nella parte superiore della scheda. Lascia vuoto per disabilitare."
+    },
+    "background_image": {
+      "label": "Percorso immagine di sfondo",
+      "helper": "Percorso dell’immagine di sfondo (es. /local/community/lumina-energy-card/lumina_background.jpg)."
+    },
+    "language": {
+      "label": "Lingua",
+      "helper": "Seleziona la lingua dell’editor."
+    },
+    "display_unit": {
+      "label": "Unità di visualizzazione",
+      "helper": "Unità utilizzata per formattare i valori di potenza."
+    },
+    "update_interval": {
+      "label": "Intervallo di aggiornamento",
+      "helper": "Frequenza di aggiornamento della scheda (0 disabilita la limitazione)."
+    },
+    "animation_speed_factor": {
+      "label": "Fattore velocità animazione",
+      "helper": "Regola il moltiplicatore della velocità dell’animazione (-3x a 3x). 0 mette in pausa; valori negativi invertono la direzione."
+    },
+    "animation_style": {
+      "label": "Stile animazione",
+      "helper": "Scegli il motivo dell’animazione dei flussi (trattini, punti o frecce)."
+    },
+
+    "sensor_pv_total": {
+      "label": "Sensore PV totale",
+      "helper": "Sensore opzionale di produzione aggregata visualizzato come linea combinata."
+    },
+    "sensor_pv_total_secondary": {
+      "label": "Sensore PV totale (Inverter 2)",
+      "helper": "Secondo totale inverter opzionale; viene aggiunto al totale PV se fornito."
+    },
+    "sensor_pv1": {
+      "label": "Stringa PV 1 (Array 1)",
+      "helper": "Sensore principale di produzione solare."
+    },
+    "sensor_pv2": { "label": "Stringa PV 2 (Array 1)" },
+    "sensor_pv3": { "label": "Stringa PV 3 (Array 1)" },
+    "sensor_pv4": { "label": "Stringa PV 4 (Array 1)" },
+    "sensor_pv5": { "label": "Stringa PV 5 (Array 1)" },
+    "sensor_pv6": { "label": "Stringa PV 6 (Array 1)" },
+
+    "solar_array2_title": {
+      "label": "Array 2 (Opzionale)"
+    },
+    "sensor_pv_array2_1": {
+      "label": "Stringa PV 1 (Array 2)",
+      "helper": "Sensore di produzione solare per Array 2."
+    },
+    "sensor_pv_array2_2": {
+      "label": "Stringa PV 2 (Array 2)",
+      "helper": "Sensore di produzione solare per Array 2."
+    },
+    "sensor_pv_array2_3": {
+      "label": "Stringa PV 3 (Array 2)",
+      "helper": "Sensore di produzione solare per Array 2."
+    },
+    "sensor_pv_array2_4": {
+      "label": "Stringa PV 4 (Array 2)",
+      "helper": "Sensore di produzione solare per Array 2."
+    },
+    "sensor_pv_array2_5": {
+      "label": "Stringa PV 5 (Array 2)",
+      "helper": "Sensore di produzione solare per Array 2."
+    },
+    "sensor_pv_array2_6": {
+      "label": "Stringa PV 6 (Array 2)",
+      "helper": "Sensore di produzione solare per Array 2."
+    },
+    "solar_array2_activation_helper": {
+      "label": "Se il sensore PV totale (Inverter 2) è impostato o se sono forniti i valori delle stringhe PV, Array 2 diventerà attivo e abiliterà il secondo inverter. Devi anche abilitare il sensore di produzione giornaliera (Array 2) e il carico domestico (Inverter 2)."
+    },
+    "show_pv_strings": {
+      "label": "Mostra stringhe PV individuali",
+      "helper": "Mostra il totale e ciascuna stringa PV su righe separate."
+    },
+    "sensor_daily": {
+      "label": "Sensore produzione giornaliera (Obbligatorio)",
+      "helper": "Sensore che riporta i totali di produzione giornaliera. È necessario specificare almeno il sensore PV totale o le stringhe PV."
+    },
+    "sensor_daily_array2": {
+      "label": "Sensore produzione giornaliera (Array 2)",
+      "helper": "Sensore che riporta la produzione giornaliera per Array 2."
+    },
+
+    "sensor_bat1_soc": { "label": "SOC Batteria 1" },
+    "sensor_bat1_power": { "label": "Potenza Batteria 1" },
+    "sensor_bat2_soc": { "label": "SOC Batteria 2" },
+    "sensor_bat2_power": { "label": "Potenza Batteria 2" },
+    "sensor_bat3_soc": { "label": "SOC Batteria 3" },
+    "sensor_bat3_power": { "label": "Potenza Batteria 3" },
+    "sensor_bat4_soc": { "label": "SOC Batteria 4" },
+    "sensor_bat4_power": { "label": "Potenza Batteria 4" },
+
+    "sensor_home_load": {
+      "label": "Carico / Consumo domestico (Obbligatorio)",
+      "helper": "Sensore del consumo totale dell’abitazione."
+    },
+    "sensor_home_load_secondary": {
+      "label": "Carico domestico (Inverter 2)",
+      "helper": "Sensore opzionale di carico per il secondo inverter."
+    },
+
+    "sensor_grid_power": {
+      "label": "Potenza rete",
+      "helper": "Sensore di flusso rete positivo/negativo. Specificare questo sensore oppure entrambi i sensori di import ed export."
+    },
+    "sensor_grid_import": {
+      "label": "Sensore import rete",
+      "helper": "Sensore opzionale che riporta l’import dalla rete (valore positivo)."
+    },
+    "sensor_grid_export": {
+      "label": "Sensore export rete",
+      "helper": "Sensore opzionale che riporta l’export verso la rete (valore positivo)."
+    },
+
+    "pv_tot_color": {
+      "label": "Colore PV totale",
+      "helper": "Colore applicato alla riga di testo PV TOTALE."
+    },
+    "pv_primary_color": {
+      "label": "Colore flusso PV 1",
+      "helper": "Colore utilizzato per la linea di animazione PV principale."
+    },
+    "pv_secondary_color": {
+      "label": "Colore flusso PV 2",
+      "helper": "Colore utilizzato per la linea di animazione PV secondaria, se disponibile."
+    },
+
+    "load_flow_color": {
+      "label": "Colore flusso carico",
+      "helper": "Colore applicato alla linea di animazione del carico domestico."
+    },
+    "house_total_color": {
+      "label": "Colore totale casa",
+      "helper": "Colore applicato al testo/flusso CASA TOTALE."
+    },
+
+    "invert_grid": {
+      "label": "Inverti valori rete",
+      "helper": "Abilita se la polarità import/export è invertita."
+    },
+    "invert_battery": {
+      "label": "Inverti valori batteria",
+      "helper": "Abilita se la polarità carica/scarica è invertita."
+    },
+
+    "sensor_car_power": { "label": "Sensore potenza auto 1" },
+    "sensor_car_soc": { "label": "Sensore SOC auto 1" },
+    "car1_label": {
+      "label": "Etichetta auto 1",
+      "helper": "Testo visualizzato accanto ai valori del primo EV."
+    },
+    "sensor_car2_power": { "label": "Sensore potenza auto 2" },
+    "sensor_car2_soc": { "label": "Sensore SOC auto 2" },
+    "car2_label": {
+      "label": "Etichetta auto 2",
+      "helper": "Testo visualizzato accanto ai valori del secondo EV."
+    }
+  },
+  "options": {
+    "languages": [
+      { "value": "en", "label": "English" },
+      { "value": "it", "label": "Italiano" },
+      { "value": "de", "label": "Deutsch" },
+      { "value": "fr", "label": "Français" },
+      { "value": "nl", "label": "Nederlands" },
+      { "value": "ru", "label": "Русский" }
+    ],
+    "display_units": [
+      { "value": "W", "label": "Watt (W)" },
+      { "value": "kW", "label": "Kilowatt (kW)" }
+    ]
+  },
+  "animation_styles": [
+    { "value": "dashes", "label": "Trattini (predefinito)" },
+    { "value": "dots", "label": "Punti" },
+    { "value": "arrows", "label": "Frecce" }
+  ],
+  "view": {
+    "daily": "PRODUZIONE GIORNALIERA",
+    "pv_tot": "PV TOTALE",
+    "car1": "AUTO 1",
+    "car2": "AUTO 2"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "sections": {
+    "general": {
+      "title": "Allgemeine Einstellungen",
+      "helper": "Karten-Metadaten, Hintergrund, Sprache und Aktualisierungsintervall."
+    },
+    "entities": {
+      "title": "Entitätsauswahl",
+      "helper": "Wählen Sie die PV-, Batterie-, Netz-, Last- und EV-Entitäten für die Karte aus. Mindestens der PV-Gesamtsensor oder die PV-String-Sensoren müssen definiert sein."
+    },
+    "colors": {
+      "title": "Farben und Schwellenwerte",
+      "helper": "Konfiguration der Netzschwellen und Akzentfarben für Flüsse und EV-Anzeige."
+    },
+    "typography": {
+      "title": "Typografie",
+      "helper": "Feinabstimmung der in der Karte verwendeten Schriftgrößen."
+    },
+    "about": {
+      "title": "Über",
+      "helper": "Credits, Version und hilfreiche Links."
+    }
+  },
+  "fields": {
+    "card_title": {
+      "label": "Kartentitel",
+      "helper": "Titel, der oben auf der Karte angezeigt wird. Leer lassen zum Deaktivieren."
+    },
+    "background_image": {
+      "label": "Pfad zum Hintergrundbild",
+      "helper": "Pfad zum Hintergrundbild (z. B. /local/community/lumina-energy-card/lumina_background.jpg)."
+    },
+    "language": {
+      "label": "Sprache",
+      "helper": "Wählen Sie die Sprache des Editors."
+    },
+    "display_unit": {
+      "label": "Anzeigeeinheit",
+      "helper": "Einheit zur Formatierung der Leistungswerte."
+    },
+    "update_interval": {
+      "label": "Aktualisierungsintervall",
+      "helper": "Aktualisierungsrate der Karte (0 deaktiviert die Drosselung)."
+    },
+    "animation_speed_factor": {
+      "label": "Animationsgeschwindigkeitsfaktor",
+      "helper": "Anpassung des Animationsgeschwindigkeits-Multiplikators (-3x bis 3x). 0 pausiert; negative Werte kehren die Richtung um."
+    },
+    "animation_style": {
+      "label": "Animationsstil",
+      "helper": "Wählen Sie das Animationsmuster für Flüsse (Striche, Punkte oder Pfeile)."
+    },
+
+    "sensor_pv_total": {
+      "label": "PV-Gesamtsensor",
+      "helper": "Optionaler aggregierter Produktionssensor, der als kombinierte Linie angezeigt wird."
+    },
+    "sensor_pv_total_secondary": {
+      "label": "PV-Gesamtsensor (Wechselrichter 2)",
+      "helper": "Optionaler zweiter Wechselrichter-Gesamtwert; wird zum PV-Gesamtwert addiert."
+    },
+    "sensor_pv1": {
+      "label": "PV-String 1 (Array 1)",
+      "helper": "Primärer Sensor für die Solarproduktion."
+    },
+    "sensor_pv2": { "label": "PV-String 2 (Array 1)" },
+    "sensor_pv3": { "label": "PV-String 3 (Array 1)" },
+    "sensor_pv4": { "label": "PV-String 4 (Array 1)" },
+    "sensor_pv5": { "label": "PV-String 5 (Array 1)" },
+    "sensor_pv6": { "label": "PV-String 6 (Array 1)" },
+
+    "solar_array2_title": {
+      "label": "Array 2 (Optional)"
+    },
+    "sensor_pv_array2_1": {
+      "label": "PV-String 1 (Array 2)",
+      "helper": "Solarproduktionssensor für Array 2."
+    },
+    "sensor_pv_array2_2": {
+      "label": "PV-String 2 (Array 2)",
+      "helper": "Solarproduktionssensor für Array 2."
+    },
+    "sensor_pv_array2_3": {
+      "label": "PV-String 3 (Array 2)",
+      "helper": "Solarproduktionssensor für Array 2."
+    },
+    "sensor_pv_array2_4": {
+      "label": "PV-String 4 (Array 2)",
+      "helper": "Solarproduktionssensor für Array 2."
+    },
+    "sensor_pv_array2_5": {
+      "label": "PV-String 5 (Array 2)",
+      "helper": "Solarproduktionssensor für Array 2."
+    },
+    "sensor_pv_array2_6": {
+      "label": "PV-String 6 (Array 2)",
+      "helper": "Solarproduktionssensor für Array 2."
+    },
+    "solar_array2_activation_helper": {
+      "label": "Wenn der PV-Gesamtsensor (Wechselrichter 2) gesetzt ist oder PV-String-Werte vorhanden sind, wird Array 2 aktiviert und der zweite Wechselrichter eingeschaltet. Zusätzlich müssen der Tagesproduktionssensor (Array 2) und die Hauslast (Wechselrichter 2) aktiviert werden."
+    },
+    "show_pv_strings": {
+      "label": "Einzelne PV-Strings anzeigen",
+      "helper": "Zeigt den Gesamtwert sowie jeden PV-String in separaten Zeilen an."
+    },
+    "sensor_daily": {
+      "label": "Tagesproduktionssensor (Erforderlich)",
+      "helper": "Sensor für die tägliche Gesamtproduktion. Mindestens der PV-Gesamtsensor oder die PV-Strings müssen definiert sein."
+    },
+    "sensor_daily_array2": {
+      "label": "Tagesproduktionssensor (Array 2)",
+      "helper": "Sensor für die tägliche Produktion von Array 2."
+    },
+
+    "sensor_bat1_soc": { "label": "Batterie 1 Ladezustand" },
+    "sensor_bat1_power": { "label": "Batterie 1 Leistung" },
+    "sensor_bat2_soc": { "label": "Batterie 2 Ladezustand" },
+    "sensor_bat2_power": { "label": "Batterie 2 Leistung" },
+    "sensor_bat3_soc": { "label": "Batterie 3 Ladezustand" },
+    "sensor_bat3_power": { "label": "Batterie 3 Leistung" },
+    "sensor_bat4_soc": { "label": "Batterie 4 Ladezustand" },
+    "sensor_bat4_power": { "label": "Batterie 4 Leistung" },
+
+    "sensor_home_load": {
+      "label": "Hauslast / Verbrauch (Erforderlich)",
+      "helper": "Sensor für den gesamten Haushaltsverbrauch."
+    },
+    "sensor_home_load_secondary": {
+      "label": "Hauslast (Wechselrichter 2)",
+      "helper": "Optionaler Hauslastsensor für den zweiten Wechselrichter."
+    },
+
+    "sensor_grid_power": {
+      "label": "Netzleistung",
+      "helper": "Sensor für positive/negative Netzflüsse. Entweder diesen Sensor oder beide Netzimport- und Netexport-Sensoren angeben."
+    },
+    "sensor_grid_import": {
+      "label": "Netzimport-Sensor",
+      "helper": "Optionaler Sensor für Netzimport (positiver Wert)."
+    },
+    "sensor_grid_export": {
+      "label": "Netzexport-Sensor",
+      "helper": "Optionaler Sensor für Netexport (positiver Wert)."
+    },
+
+    "pv_tot_color": {
+      "label": "PV-Gesamtfarbe",
+      "helper": "Farbe für die Textzeile PV GESAMT."
+    },
+    "pv_primary_color": {
+      "label": "PV-1-Flussfarbe",
+      "helper": "Farbe für die primäre PV-Animationslinie."
+    },
+    "pv_secondary_color": {
+      "label": "PV-2-Flussfarbe",
+      "helper": "Farbe für die sekundäre PV-Animationslinie, falls verfügbar."
+    },
+
+    "load_flow_color": {
+      "label": "Lastflussfarbe",
+      "helper": "Farbe für die Animationslinie der Hauslast."
+    },
+    "house_total_color": {
+      "label": "Haus-Gesamtfarbe",
+      "helper": "Farbe für den Text/Fluss HAUS GESAMT."
+    },
+
+    "invert_grid": {
+      "label": "Netzwerte invertieren",
+      "helper": "Aktivieren, wenn die Import-/Export-Polarität umgekehrt ist."
+    },
+    "invert_battery": {
+      "label": "Batteriewerte invertieren",
+      "helper": "Aktivieren, wenn die Lade-/Entlade-Polarität umgekehrt ist."
+    },
+
+    "sensor_car_power": { "label": "Auto 1 Leistungssensor" },
+    "sensor_car_soc": { "label": "Auto 1 Ladezustand" },
+    "car1_label": {
+      "label": "Auto-1-Bezeichnung",
+      "helper": "Text, der neben den Werten des ersten EV angezeigt wird."
+    },
+    "sensor_car2_power": { "label": "Auto 2 Leistungssensor" },
+    "sensor_car2_soc": { "label": "Auto 2 Ladezustand" },
+    "car2_label": {
+      "label": "Auto-2-Bezeichnung",
+      "helper": "Text, der neben den Werten des zweiten EV angezeigt wird."
+    }
+  },
+  "options": {
+    "languages": [
+      { "value": "en", "label": "English" },
+      { "value": "it", "label": "Italiano" },
+      { "value": "de", "label": "Deutsch" },
+      { "value": "fr", "label": "Français" },
+      { "value": "nl", "label": "Nederlands" },
+      { "value": "ru", "label": "Русский" }
+    ],
+    "display_units": [
+      { "value": "W", "label": "Watt (W)" },
+      { "value": "kW", "label": "Kilowatt (kW)" }
+    ]
+  },
+  "animation_styles": [
+    { "value": "dashes", "label": "Striche (Standard)" },
+    { "value": "dots", "label": "Punkte" },
+    { "value": "arrows", "label": "Pfeile" }
+  ],
+  "view": {
+    "daily": "TAGESERTRAG",
+    "pv_tot": "PV GESAMT",
+    "car1": "AUTO 1",
+    "car2": "AUTO 2"
+  }
+}

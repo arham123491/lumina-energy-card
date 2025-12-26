@@ -114,22 +114,24 @@
       { "value": "en", "label": "English" },
       { "value": "it", "label": "Italiano" },
       { "value": "de", "label": "Deutsch" },
-      { "value": "fr", "label": "Français" }
+      { "value": "fr", "label": "Français" },
+      { "value": "nl", "label": "Nederlands" },
+      { "value": "ru", "label": "Русский" }
     ],
     "display_units": [
       { "value": "W", "label": "Watts (W)" },
       { "value": "kW", "label": "Kilowatts (kW)" }
     ],
-    "animation_styles": [
-      { "value": "dashes", "label": "Dashes (default)" },
-      { "value": "dots", "label": "Dots" },
-      { "value": "arrows", "label": "Arrows" }
-    ]
-  },
+  "animation_styles": [
+    { "value": "dashes", "label": "Dashes (default)" },
+    { "value": "dots", "label": "Dots" },
+    { "value": "arrows", "label": "Arrows" }
+  ],
   "view": {
     "daily": "DAILY YIELD",
     "pv_tot": "PV TOTAL",
     "car1": "CAR 1",
     "car2": "CAR 2"
   }
+}
 }

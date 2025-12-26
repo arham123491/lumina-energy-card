@@ -48,7 +48,7 @@
     "sensor_grid_import": { "label": "Capteur import réseau", "helper": "Entité optionnelle rapportant l import réseau (valeurs positives)." },
     "sensor_grid_export": { "label": "Capteur export réseau", "helper": "Entité optionnelle rapportant l export réseau (valeurs positives)." },
 
-    "pv_tot_color": { "label": "Couleur PV totale", "helper": "Couleur appliquée à la ligne/texte PV TOT." },
+    "pv_tot_color": { "label": "Couleur PV totale", "helper": "Couleur appliquée à la ligne/texte PV TOTAL." },
     "pv_primary_color": { "label": "Couleur flux PV 1", "helper": "Couleur utilisée pour la ligne d animation PV primaire." },
     "pv_secondary_color": { "label": "Couleur flux PV 2", "helper": "Couleur utilisée pour la ligne d animation PV secondaire si disponible." },
     "pv_string1_color": { "label": "Couleur Chaîne PV 1", "helper": "Remplace la couleur pour S1 dans la liste PV. Laisser vide pour hériter de la couleur PV totale." },
@@ -122,5 +122,11 @@
       { "value": "dots", "label": "Points" },
       { "value": "arrows", "label": "Flèches" }
     ]
+  },
+  "view": {
+    "daily": "PRODUCTION DU JOUR",
+    "pv_tot": "PV TOTAL",
+    "car1": "VÉHICULE 1",
+    "car2": "VÉHICULE 2"
   }
 }

@@ -42,7 +42,7 @@
     "sensor_grid_export": { "label": "Sensore export rete", "helper": "Entita opzionale che riporta la potenza di export." },
 
     "pv_primary_color": { "label": "Colore flusso FV 1", "helper": "Colore utilizzato per l animazione FV principale." },
-    "pv_tot_color": { "label": "Colore PV TOT", "helper": "Colore applicato alla riga PV TOT." },
+    "pv_tot_color": { "label": "Colore PV TOTALE", "helper": "Colore applicato alla riga PV TOTALE." },
     "pv_secondary_color": { "label": "Colore flusso FV 2", "helper": "Colore utilizzato per la seconda linea FV quando presente." },
     "pv_string1_color": { "label": "Colore stringa FV 1", "helper": "Sovrascrive il colore di S1. Lascia vuoto per usare il colore totale FV." },
     "pv_string2_color": { "label": "Colore stringa FV 2", "helper": "Sovrascrive il colore di S2. Lascia vuoto per usare il colore totale FV." },
@@ -118,5 +118,11 @@
       { "value": "dots", "label": "Punti" },
       { "value": "arrows", "label": "Frecce" }
     ]
+  },
+  "view": {
+    "daily": "PRODUZIONE OGGI",
+    "pv_tot": "PV TOTALE",
+    "car1": "AUTO 1",
+    "car2": "AUTO 2"
   }
 }

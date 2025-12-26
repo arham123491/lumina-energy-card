@@ -1,7 +1,7 @@
 # Lumina Energy Card
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/custom-components/hacs)
-![Version](https://img.shields.io/badge/version-1.1.21-blue.svg)
+![Version](https://img.shields.io/badge/version-1.1.25-blue.svg)
 
 Limuna Energy Card repository is <https://github.com/ratava/lumina-energy-card>.
 
@@ -322,7 +322,7 @@ Les options disponibles correspondent à celles listées dans la section anglais
 
 ### Changelog (FR)
 
-- **1.1.24 (2025-12-23)** – Ajout du support secondaire PV Array 2 (sélecteurs par chaîne et `sensor_pv_total_secondary`), rendement journalier combiné (`sensor_daily` + `sensor_daily_array2`), charge domestique secondaire (`sensor_home_load_secondary`), `pv_tot_color`, couleurs par ligne HOUSE/INV (`house_total_color`, `inv1_color`, `inv2_color`), support `invert_battery`, options de taille police nom voiture (`car_name_font_size`, `car2_name_font_size`) et mises à jour de l éditeur et du README (EN/IT/DE/FR).
+- **1.1.25 (2025-12-26)** – Bump de version. (Voir l'entrée précédente pour les dernières nouveautés.)
 
 ---
 
@@ -339,9 +339,7 @@ Les options disponibles correspondent à celles listées dans la section anglais
 - License: MIT (see [LICENSE](LICENSE)).
 - Issues & feature requests: submit via [GitHub](https://github.com/ratava/lumina-energy-card).
 
-### Changelog (EN)
-
-- **1.1.24 (2025-12-23)** – Added secondary PV Array 2 support (per-array string selectors and `sensor_pv_total_secondary`), combined daily yield (`sensor_daily` + `sensor_daily_array2`), secondary home load (`sensor_home_load_secondary`), `pv_tot_color`, per-line HOUSE/INV colours (`house_total_color`, `inv1_color`, `inv2_color`), `invert_battery` support, new car name font-size options (`car_name_font_size`, `car2_name_font_size`) and corresponding editor schema and localized README entries (EN/IT/DE).
+- **1.1.25 (2025-12-26)** – Version bump. (See previous entry for last feature update.)
 - **1.1.20 (2025)** – Tuned arrow animation scaling, added grid animation threshold, EV panel toggle, and documentation refresh.
 - **1.1.18 (2025)** – Added selectable flow animation styles (dashes, dots, arrows) and refreshed documentation.
 - **1.1.13 (2025)** – Added smooth flow duration easing with dynamic rate scaling, cleanup guards, and a 0s update interval option for real-time refresh.

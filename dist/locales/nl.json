@@ -1,0 +1,215 @@
+{
+  "sections": {
+    "general": {
+      "title": "Algemene instellingen",
+      "helper": "Kaartmetadata, achtergrond, taal en updatefrequentie."
+    },
+    "entities": {
+      "title": "Entiteitsselectie",
+      "helper": "Selecteer de PV-, batterij-, net-, verbruiks- en EV-entiteiten die door de kaart worden gebruikt. Minimaal moet de PV-totaalsensor of de PV-stringwaarden zijn ingesteld."
+    },
+    "colors": {
+      "title": "Kleuren en drempels",
+      "helper": "Configureer netdrempels en accentkleuren voor stromen en EV-weergave."
+    },
+    "typography": {
+      "title": "Typografie",
+      "helper": "Fijn afstellen van de lettergroottes die in de kaart worden gebruikt."
+    },
+    "about": {
+      "title": "Over",
+      "helper": "Credits, versie en nuttige links."
+    }
+  },
+  "fields": {
+    "card_title": {
+      "label": "Kaarttitel",
+      "helper": "Titel die bovenaan de kaart wordt weergegeven. Leeg laten om uit te schakelen."
+    },
+    "background_image": {
+      "label": "Pad naar achtergrondafbeelding",
+      "helper": "Pad naar de achtergrondafbeelding (bijv. /local/community/lumina-energy-card/lumina_background.jpg)."
+    },
+    "language": {
+      "label": "Taal",
+      "helper": "Kies de taal van de editor."
+    },
+    "display_unit": {
+      "label": "Weergave-eenheid",
+      "helper": "Eenheid die wordt gebruikt voor het formatteren van vermogenswaarden."
+    },
+    "update_interval": {
+      "label": "Update-interval",
+      "helper": "Verversingsfrequentie van de kaart (0 schakelt begrenzing uit)."
+    },
+    "animation_speed_factor": {
+      "label": "Animatiesnelheidsfactor",
+      "helper": "Pas de animatiesnelheid aan (-3x tot 3x). 0 pauzeert; negatieve waarden keren de richting om."
+    },
+    "animation_style": {
+      "label": "Animatiestijl",
+      "helper": "Kies het animatiemotief voor stromen (streepjes, punten of pijlen)."
+    },
+
+    "sensor_pv_total": {
+      "label": "PV-totaalsensor",
+      "helper": "Optionele geaggregeerde productiesensor die als gecombineerde lijn wordt weergegeven."
+    },
+    "sensor_pv_total_secondary": {
+      "label": "PV-totaalsensor (Omvormer 2)",
+      "helper": "Optionele tweede omvormertotaalwaarde; wordt toegevoegd aan het PV-totaal."
+    },
+    "sensor_pv1": {
+      "label": "PV-string 1 (Array 1)",
+      "helper": "Primaire sensor voor zonneproductie."
+    },
+    "sensor_pv2": { "label": "PV-string 2 (Array 1)" },
+    "sensor_pv3": { "label": "PV-string 3 (Array 1)" },
+    "sensor_pv4": { "label": "PV-string 4 (Array 1)" },
+    "sensor_pv5": { "label": "PV-string 5 (Array 1)" },
+    "sensor_pv6": { "label": "PV-string 6 (Array 1)" },
+
+    "solar_array2_title": {
+      "label": "Array 2 (Optioneel)"
+    },
+    "sensor_pv_array2_1": {
+      "label": "PV-string 1 (Array 2)",
+      "helper": "Zonneproductiesensor voor Array 2."
+    },
+    "sensor_pv_array2_2": {
+      "label": "PV-string 2 (Array 2)",
+      "helper": "Zonneproductiesensor voor Array 2."
+    },
+    "sensor_pv_array2_3": {
+      "label": "PV-string 3 (Array 2)",
+      "helper": "Zonneproductiesensor voor Array 2."
+    },
+    "sensor_pv_array2_4": {
+      "label": "PV-string 4 (Array 2)",
+      "helper": "Zonneproductiesensor voor Array 2."
+    },
+    "sensor_pv_array2_5": {
+      "label": "PV-string 5 (Array 2)",
+      "helper": "Zonneproductiesensor voor Array 2."
+    },
+    "sensor_pv_array2_6": {
+      "label": "PV-string 6 (Array 2)",
+      "helper": "Zonneproductiesensor voor Array 2."
+    },
+    "solar_array2_activation_helper": {
+      "label": "Als de PV-totaalsensor (Omvormer 2) is ingesteld of PV-stringwaarden zijn opgegeven, wordt Array 2 actief en wordt de tweede omvormer ingeschakeld. U moet ook de dagproductiesensor (Array 2) en het huisverbruik (Omvormer 2) inschakelen."
+    },
+    "show_pv_strings": {
+      "label": "Individuele PV-strings weergeven",
+      "helper": "Toont het totaal en elke PV-string op afzonderlijke regels."
+    },
+    "sensor_daily": {
+      "label": "Dagproductiesensor (Vereist)",
+      "helper": "Sensor die de totale dagelijkse productie rapporteert. Minimaal moet de PV-totaalsensor of de PV-strings zijn ingesteld."
+    },
+    "sensor_daily_array2": {
+      "label": "Dagproductiesensor (Array 2)",
+      "helper": "Sensor die de dagelijkse productie van Array 2 rapporteert."
+    },
+
+    "sensor_bat1_soc": { "label": "Batterij 1 SOC" },
+    "sensor_bat1_power": { "label": "Batterij 1 vermogen" },
+    "sensor_bat2_soc": { "label": "Batterij 2 SOC" },
+    "sensor_bat2_power": { "label": "Batterij 2 vermogen" },
+    "sensor_bat3_soc": { "label": "Batterij 3 SOC" },
+    "sensor_bat3_power": { "label": "Batterij 3 vermogen" },
+    "sensor_bat4_soc": { "label": "Batterij 4 SOC" },
+    "sensor_bat4_power": { "label": "Batterij 4 vermogen" },
+
+    "sensor_home_load": {
+      "label": "Huisverbruik / belasting (Vereist)",
+      "helper": "Sensor voor het totale huishoudelijke verbruik."
+    },
+    "sensor_home_load_secondary": {
+      "label": "Huisverbruik (Omvormer 2)",
+      "helper": "Optionele huisverbruiksensor voor de tweede omvormer."
+    },
+
+    "sensor_grid_power": {
+      "label": "Netvermogen",
+      "helper": "Sensor voor positieve/negatieve netstromen. Geef deze sensor op of zowel de netimport- als netexportsensor."
+    },
+    "sensor_grid_import": {
+      "label": "Netimportsensor",
+      "helper": "Optionele sensor die netimport (positieve waarde) rapporteert."
+    },
+    "sensor_grid_export": {
+      "label": "Netexportsensor",
+      "helper": "Optionele sensor die netexport (positieve waarde) rapporteert."
+    },
+
+    "pv_tot_color": {
+      "label": "PV-totaalkleur",
+      "helper": "Kleur toegepast op de tekstregel PV TOTAAL."
+    },
+    "pv_primary_color": {
+      "label": "PV-1-stroomkleur",
+      "helper": "Kleur voor de primaire PV-animatielijn."
+    },
+    "pv_secondary_color": {
+      "label": "PV-2-stroomkleur",
+      "helper": "Kleur voor de secundaire PV-animatielijn indien beschikbaar."
+    },
+
+    "load_flow_color": {
+      "label": "Belastingsstroomkleur",
+      "helper": "Kleur toegepast op de animatielijn van het huisverbruik."
+    },
+    "house_total_color": {
+      "label": "Huis-totaalkleur",
+      "helper": "Kleur toegepast op de tekst/stroom HUIS TOTAAL."
+    },
+
+    "invert_grid": {
+      "label": "Netwaarden omkeren",
+      "helper": "Inschakelen als de import-/exportpolariteit is omgekeerd."
+    },
+    "invert_battery": {
+      "label": "Batterijwaarden omkeren",
+      "helper": "Inschakelen als de laad-/ontlaadpolariteit is omgekeerd."
+    },
+
+    "sensor_car_power": { "label": "Auto 1 vermogenssensor" },
+    "sensor_car_soc": { "label": "Auto 1 SOC-sensor" },
+    "car1_label": {
+      "label": "Auto 1 label",
+      "helper": "Tekst die naast de waarden van de eerste EV wordt weergegeven."
+    },
+    "sensor_car2_power": { "label": "Auto 2 vermogenssensor" },
+    "sensor_car2_soc": { "label": "Auto 2 SOC-sensor" },
+    "car2_label": {
+      "label": "Auto 2 label",
+      "helper": "Tekst die naast de waarden van de tweede EV wordt weergegeven."
+    }
+  },
+  "options": {
+    "languages": [
+      { "value": "en", "label": "English" },
+      { "value": "it", "label": "Italiano" },
+      { "value": "de", "label": "Deutsch" },
+      { "value": "fr", "label": "Français" },
+      { "value": "nl", "label": "Nederlands" },
+      { "value": "ru", "label": "Русский" }
+    ],
+    "display_units": [
+      { "value": "W", "label": "Watt (W)" },
+      { "value": "kW", "label": "Kilowatt (kW)" }
+    ]
+  },
+  "animation_styles": [
+    { "value": "dashes", "label": "Streepjes (standaard)" },
+    { "value": "dots", "label": "Punten" },
+    { "value": "arrows", "label": "Pijlen" }
+  ],
+  "view": {
+    "daily": "DAGOPBRENGST",
+    "pv_tot": "PV TOTAAL",
+    "car1": "AUTO 1",
+    "car2": "AUTO 2"
+  }
+}
