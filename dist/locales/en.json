@@ -2,6 +2,7 @@
   "sections": {
     "general": { "title": "General Settings", "helper": "Card metadata, background, language, and update cadence." },
     "entities": { "title": "Entity Selection", "helper": "Choose the PV, battery, grid, load, and EV entities used by the card. Either the PV total sensor or your PV string arrays need to be specified as a minimum." },
+    "pvPopup": { "title": "PV Popup", "helper": "Configure entities for the PV popup display." },
     "colors": { "title": "Color & Thresholds", "helper": "Configure grid thresholds and accent colours for flows and EV display." },
     "typography": { "title": "Typography", "helper": "Fine tune the font sizes used across the card." },
     "about": { "title": "About", "helper": "Credits, version, and helpful links." }
@@ -110,31 +111,55 @@
     "car_name_font_size": { "label": "Car Name Font Size (px)", "helper": "Default 15" },
     "car2_name_font_size": { "label": "Car 2 Name Font Size (px)", "helper": "Default 15" },
     "car_soc_font_size": { "label": "Car SOC Font Size (px)", "helper": "Default 12" },
-    "car2_soc_font_size": { "label": "Car 2 SOC Font Size (px)", "helper": "Default 12" }
+    "car2_soc_font_size": { "label": "Car 2 SOC Font Size (px)", "helper": "Default 12" },
+    "sensor_popup_pv_1": { "label": "PV Popup 1", "helper": "Entity for PV popup line 1." },
+    "sensor_popup_pv_2": { "label": "PV Popup 2", "helper": "Entity for PV popup line 2." },
+    "sensor_popup_pv_3": { "label": "PV Popup 3", "helper": "Entity for PV popup line 3." },
+    "sensor_popup_pv_4": { "label": "PV Popup 4", "helper": "Entity for PV popup line 4." },
+    "sensor_popup_pv_5": { "label": "PV Popup 5", "helper": "Entity for PV popup line 5." },
+    "sensor_popup_pv_6": { "label": "PV Popup 6", "helper": "Entity for PV popup line 6." },
+    "sensor_popup_pv_1_name": { "label": "PV Popup 1 Name", "helper": "Optional custom name for PV popup line 1. Leave blank to use entity name." },
+    "sensor_popup_pv_2_name": { "label": "PV Popup 2 Name", "helper": "Optional custom name for PV popup line 2. Leave blank to use entity name." },
+    "sensor_popup_pv_3_name": { "label": "PV Popup 3 Name", "helper": "Optional custom name for PV popup line 3. Leave blank to use entity name." },
+    "sensor_popup_pv_4_name": { "label": "PV Popup 4 Name", "helper": "Optional custom name for PV popup line 4. Leave blank to use entity name." },
+    "sensor_popup_pv_5_name": { "label": "PV Popup 5 Name", "helper": "Optional custom name for PV popup line 5. Leave blank to use entity name." },
+    "sensor_popup_pv_6_name": { "label": "PV Popup 6 Name", "helper": "Optional custom name for PV popup line 6. Leave blank to use entity name." },
+    "sensor_popup_pv_1_font_size": { "label": "PV Popup 1 Font Size (px)", "helper": "Font size for PV popup line 1. Default 14" },
+    "sensor_popup_pv_2_font_size": { "label": "PV Popup 2 Font Size (px)", "helper": "Font size for PV popup line 2. Default 14" },
+    "sensor_popup_pv_3_font_size": { "label": "PV Popup 3 Font Size (px)", "helper": "Font size for PV popup line 3. Default 14" },
+    "sensor_popup_pv_4_font_size": { "label": "PV Popup 4 Font Size (px)", "helper": "Font size for PV popup line 4. Default 14" },
+    "sensor_popup_pv_5_font_size": { "label": "PV Popup 5 Font Size (px)", "helper": "Font size for PV popup line 5. Default 14" },
+    "sensor_popup_pv_6_font_size": { "label": "PV Popup 6 Font Size (px)", "helper": "Font size for PV popup line 6. Default 14" },
+    "sensor_popup_pv_1_color": { "label": "PV Popup 1 Color", "helper": "Color for PV popup line 1 text." },
+    "sensor_popup_pv_2_color": { "label": "PV Popup 2 Color", "helper": "Color for PV popup line 2 text." },
+    "sensor_popup_pv_3_color": { "label": "PV Popup 3 Color", "helper": "Color for PV popup line 3 text." },
+    "sensor_popup_pv_4_color": { "label": "PV Popup 4 Color", "helper": "Color for PV popup line 4 text." },
+    "sensor_popup_pv_5_color": { "label": "PV Popup 5 Color", "helper": "Color for PV popup line 5 text." },
+    "sensor_popup_pv_6_color": { "label": "PV Popup 6 Color", "helper": "Color for PV popup line 6 text." }
   },
   "options": {
     "languages": [
       { "value": "en", "label": "English" },
       { "value": "it", "label": "Italiano" },
       { "value": "de", "label": "Deutsch" },
-      { "value": "fr", "label": "Français" },
-      { "value": "nl", "label": "Nederlands" },
-      { "value": "ru", "label": "Русский" }
+      { "value": "fr", "label": "Français" }
     ],
     "display_units": [
       { "value": "W", "label": "Watts (W)" },
       { "value": "kW", "label": "Kilowatts (kW)" }
     ],
-  "animation_styles": [
-    { "value": "dashes", "label": "Dashes (default)" },
-    { "value": "dots", "label": "Dots" },
-    { "value": "arrows", "label": "Arrows" }
-  ],
+    "animation_styles": [
+      { "value": "dashes", "label": "Dashes (default)" },
+      { "value": "dots", "label": "Dots" },
+      { "value": "arrows", "label": "Arrows" }
+    ]
+  },
   "view": {
     "daily": "DAILY YIELD",
     "pv_tot": "PV TOTAL",
     "car1": "CAR 1",
-    "car2": "CAR 2"
+    "car2": "CAR 2",
+    "importing": "IMPORTING",
+    "exporting": "EXPORTING"
   }
-}
 }

@@ -2,6 +2,7 @@
   "sections": {
     "general": { "title": "Impostazioni generali", "helper": "Titolo scheda, sfondo, lingua e frequenza di aggiornamento." },
     "entities": { "title": "Selezione entita", "helper": "Scegli le entita PV, batteria, rete, carico ed EV utilizzate dalla scheda. Come minimo deve essere specificato il sensore PV totale oppure gli array di stringhe PV." },
+    "pvPopup": { "title": "PV Popup", "helper": "Configura le entita per la visualizzazione del popup PV." },
     "colors": { "title": "Colori e soglie", "helper": "Configura soglie della rete e colori di accento per i flussi." },
     "typography": { "title": "Tipografia", "helper": "Regola le dimensioni dei caratteri utilizzate nella scheda." },
     "about": { "title": "Informazioni", "helper": "Crediti, versione e link utili." }
@@ -103,7 +104,31 @@
     "car_name_font_size": { "label": "Dimensione nome auto (px)", "helper": "Predefinita come la dimensione potenza auto" },
     "car2_name_font_size": { "label": "Dimensione nome Auto 2 (px)", "helper": "Predefinita come la dimensione potenza Auto 2" },
     "car_soc_font_size": { "label": "Dimensione SOC auto (px)", "helper": "Predefinita 12" },
-    "car2_soc_font_size": { "label": "Dimensione SOC Auto 2 (px)", "helper": "Predefinita 12" }
+    "car2_soc_font_size": { "label": "Dimensione SOC Auto 2 (px)", "helper": "Predefinita 12" },
+    "sensor_popup_pv_1": { "label": "PV Popup 1", "helper": "Entita per la riga 1 del popup PV." },
+    "sensor_popup_pv_2": { "label": "PV Popup 2", "helper": "Entita per la riga 2 del popup PV." },
+    "sensor_popup_pv_3": { "label": "PV Popup 3", "helper": "Entita per la riga 3 del popup PV." },
+    "sensor_popup_pv_4": { "label": "PV Popup 4", "helper": "Entita per la riga 4 del popup PV." },
+    "sensor_popup_pv_5": { "label": "PV Popup 5", "helper": "Entita per la riga 5 del popup PV." },
+    "sensor_popup_pv_6": { "label": "PV Popup 6", "helper": "Entita per la riga 6 del popup PV." },
+    "sensor_popup_pv_1_name": { "label": "Nome PV Popup 1", "helper": "Nome personalizzato opzionale per la riga 1 del popup PV. Lasciare vuoto per usare il nome entità." },
+    "sensor_popup_pv_2_name": { "label": "Nome PV Popup 2", "helper": "Nome personalizzato opzionale per la riga 2 del popup PV. Lasciare vuoto per usare il nome entità." },
+    "sensor_popup_pv_3_name": { "label": "Nome PV Popup 3", "helper": "Nome personalizzato opzionale per la riga 3 del popup PV. Lasciare vuoto per usare il nome entità." },
+    "sensor_popup_pv_4_name": { "label": "Nome PV Popup 4", "helper": "Nome personalizzato opzionale per la riga 4 del popup PV. Lasciare vuoto per usare il nome entità." },
+    "sensor_popup_pv_5_name": { "label": "Nome PV Popup 5", "helper": "Nome personalizzato opzionale per la riga 5 del popup PV. Lasciare vuoto per usare il nome entità." },
+    "sensor_popup_pv_6_name": { "label": "Nome PV Popup 6", "helper": "Nome personalizzato opzionale per la riga 6 del popup PV. Lasciare vuoto per usare il nome entità." },
+    "sensor_popup_pv_1_font_size": { "label": "Dimensione Font PV Popup 1 (px)", "helper": "Dimensione font per la riga 1 del popup PV. Predefinita 14" },
+    "sensor_popup_pv_2_font_size": { "label": "Dimensione Font PV Popup 2 (px)", "helper": "Dimensione font per la riga 2 del popup PV. Predefinita 14" },
+    "sensor_popup_pv_3_font_size": { "label": "Dimensione Font PV Popup 3 (px)", "helper": "Dimensione font per la riga 3 del popup PV. Predefinita 14" },
+    "sensor_popup_pv_4_font_size": { "label": "Dimensione Font PV Popup 4 (px)", "helper": "Dimensione font per la riga 4 del popup PV. Predefinita 14" },
+    "sensor_popup_pv_5_font_size": { "label": "Dimensione Font PV Popup 5 (px)", "helper": "Dimensione font per la riga 5 del popup PV. Predefinita 14" },
+    "sensor_popup_pv_6_font_size": { "label": "Dimensione Font PV Popup 6 (px)", "helper": "Dimensione font per la riga 6 del popup PV. Predefinita 14" },
+    "sensor_popup_pv_1_color": { "label": "Colore PV Popup 1", "helper": "Colore per il testo della riga 1 del popup PV." },
+    "sensor_popup_pv_2_color": { "label": "Colore PV Popup 2", "helper": "Colore per il testo della riga 2 del popup PV." },
+    "sensor_popup_pv_3_color": { "label": "Colore PV Popup 3", "helper": "Colore per il testo della riga 3 del popup PV." },
+    "sensor_popup_pv_4_color": { "label": "Colore PV Popup 4", "helper": "Colore per il testo della riga 4 del popup PV." },
+    "sensor_popup_pv_5_color": { "label": "Colore PV Popup 5", "helper": "Colore per il testo della riga 5 del popup PV." },
+    "sensor_popup_pv_6_color": { "label": "Colore PV Popup 6", "helper": "Colore per il testo della riga 6 del popup PV." }
   },
   "options": {
     "languages": [
@@ -126,6 +151,8 @@
     "daily": "PRODUZIONE OGGI",
     "pv_tot": "PV TOTALE",
     "car1": "AUTO 1",
-    "car2": "AUTO 2"
+    "car2": "AUTO 2",
+    "importing": "IMPORTAZIONE",
+    "exporting": "ESPORTAZIONE"
   }
 }
