@@ -9,7 +9,8 @@ const TEXT_POSITIONS = {
   solar: { x: 177, y: 320, rotate: -16, skewX: -20, skewY: 0 },
   battery: { x: 245, y: 375, rotate: -25, skewX: -25, skewY: 5 },
   home: { x: 460, y: 245, rotate: -20, skewX: -20, skewY: 3 },
-  grid: { x: 580, y: 90, rotate: -8, skewX: -10, skewY: 0 }
+  grid: { x: 580, y: 90, rotate: -8, skewX: -10, skewY: 0 },
+  heatPump: { x: 400, y: 250, rotate: -20, skewX: -20, skewY: 3 }
 };
 
 const buildTextTransform = ({ x, y, rotate, skewX, skewY }) =>
@@ -19,7 +20,8 @@ const TEXT_TRANSFORMS = {
   solar: buildTextTransform(TEXT_POSITIONS.solar),
   battery: buildTextTransform(TEXT_POSITIONS.battery),
   home: buildTextTransform(TEXT_POSITIONS.home),
-  grid: buildTextTransform(TEXT_POSITIONS.grid)
+  grid: buildTextTransform(TEXT_POSITIONS.grid),
+  heatPump: buildTextTransform(TEXT_POSITIONS.heatPump)
 };
 
 const FLOW_PATHS = {
@@ -31,7 +33,8 @@ const FLOW_PATHS = {
   grid_house: 'M 475 205 L 575 245 L 575 223',
   house_inv: 'M 475 210 L 575 250 L 470 280',
   car1: 'M 475 329 L 490 335 L 600 285',
-  car2: 'M 475 341 L 490 347 L 600 310'
+  car2: 'M 475 341 L 490 347 L 600 310',
+  heatPump: 'M 405 230 L 430 250 L 395 260 L 375 245'
 };
 
 const SVG_DIMENSIONS = { width: 800, height: 450 };
@@ -185,7 +188,8 @@ class LuminaEnergyCard extends HTMLElement {
     return {
       language: 'en',
       card_title: '',
-      background_image: '/local/community/lumina-energy-card/lumina_background.jpg',
+      background_image: '/local/community/lumina-energy-card/lumina_background.png',
+      background_image_heat_pump: '/local/community/lumina-energy-card/lumina-energy-card-hp.png',
       header_font_size: 16,
       daily_label_font_size: 12,
       daily_value_font_size: 20,
@@ -193,6 +197,7 @@ class LuminaEnergyCard extends HTMLElement {
       battery_soc_font_size: 20,
       battery_power_font_size: 14,
       load_font_size: 15,
+      heat_pump_font_size: 16,
       grid_font_size: 15,
       car_power_font_size: 15,
       car_soc_font_size: 12,
@@ -212,6 +217,7 @@ class LuminaEnergyCard extends HTMLElement {
       sensor_bat1_power: '',
       sensor_home_load: '',
       sensor_home_load_secondary: '',
+      sensor_heat_pump_consumption: '',
       sensor_grid_power: '',
       sensor_grid_import: '',
       sensor_grid_export: '',
@@ -243,7 +249,9 @@ class LuminaEnergyCard extends HTMLElement {
       car2_color: '#FFFFFF',
       car1_name_color: '#FFFFFF',
       car2_name_color: '#FFFFFF',
-      car2_pct_color: '',
+      car2_pct_color: '#00FFFF',
+      heat_pump_flow_color: '#FFA500',
+      heat_pump_text_color: '#FFA500',
       show_car2: false,
       invert_battery: false,
       battery_fill_high_color: DEFAULT_BATTERY_FILL_HIGH_COLOR,
@@ -909,6 +917,21 @@ class LuminaEnergyCard extends HTMLElement {
     return Math.round(watts) + ' W';
   }
 
+  formatPopupValue(value, sensorId) {
+    if (value === null || value === undefined) return '';
+    const entity = sensorId && this._hass.states[sensorId];
+    const unit = entity && entity.attributes ? entity.attributes.unit_of_measurement : '';
+    if (typeof value === 'number') {
+      if (unit) {
+        return `${value} ${unit}`;
+      } else {
+        return value.toString();
+      }
+    } else {
+      return value.toString();
+    }
+  }
+
   render() {
     if (!this._hass || !this.config) return;
 
@@ -934,6 +957,11 @@ class LuminaEnergyCard extends HTMLElement {
     const pv_primary_w = config.sensor_pv_total ? this.getStateSafe(config.sensor_pv_total) : pvTotalFromStrings;
     const pv_secondary_w = config.sensor_pv_total_secondary ? this.getStateSafe(config.sensor_pv_total_secondary) : pvArray2TotalFromStrings;
     const total_pv_w = pv_primary_w + pv_secondary_w;
+    const heatPumpSensorId = typeof config.sensor_heat_pump_consumption === 'string'
+      ? config.sensor_heat_pump_consumption.trim()
+      : (config.sensor_heat_pump_consumption || null);
+    const hasHeatPumpSensor = Boolean(heatPumpSensorId);
+    const heat_pump_w = hasHeatPumpSensor ? this.getStateSafe(heatPumpSensorId) : 0;
     const showPvStrings = Boolean(config.show_pv_strings);
 
     // Get battery configs
@@ -1137,7 +1165,9 @@ class LuminaEnergyCard extends HTMLElement {
     ];
 
     // Display settings
-    const bg_img = config.background_image || '/local/community/lumina-energy-card/lumina_background.jpg';
+    const defaultBackground = config.background_image || '/local/community/lumina-energy-card/lumina_background.png';
+    const heatPumpBackground = config.background_image_heat_pump || '/local/community/lumina-energy-card/lumina-energy-card-hp.png';
+    const bg_img = hasHeatPumpSensor ? heatPumpBackground : defaultBackground;
     const title_text = (typeof config.card_title === 'string' && config.card_title.trim()) ? config.card_title.trim() : null;
 
     const resolveColor = (value, fallback) => {
@@ -1162,6 +1192,7 @@ class LuminaEnergyCard extends HTMLElement {
     const battery_soc_font_size = clampValue(config.battery_soc_font_size, 12, 32, 20);
     const battery_power_font_size = clampValue(config.battery_power_font_size, 10, 28, 14);
     const load_font_size = clampValue(config.load_font_size, 10, 28, 15);
+    const heat_pump_font_size = clampValue(config.heat_pump_font_size, 10, 28, 16);
     const grid_font_size = clampValue(config.grid_font_size, 10, 28, 15);
     const car_power_font_size = clampValue(config.car_power_font_size, 10, 28, 15);
     const car_soc_font_size = clampValue(config.car_soc_font_size, 8, 24, 12);
@@ -1241,6 +1272,8 @@ class LuminaEnergyCard extends HTMLElement {
     const gridImportColor = resolveColor(config.grid_import_color, C_RED);
     const gridExportColor = resolveColor(config.grid_export_color, C_CYAN);
     const carFlowColor = resolveColor(config.car_flow_color, C_CYAN);
+    const heatPumpFlowColor = resolveColor(config.heat_pump_flow_color, '#FFA500');
+    const heatPumpTextColor = resolveColor(config.heat_pump_text_color, '#FFA500');
     const batteryFillHighColor = resolveColor(config.battery_fill_high_color, DEFAULT_BATTERY_FILL_HIGH_COLOR);
     const batteryFillLowColor = resolveColor(config.battery_fill_low_color, DEFAULT_BATTERY_FILL_LOW_COLOR);
     const batteryLowThreshold = (() => {
@@ -1372,13 +1405,15 @@ class LuminaEnergyCard extends HTMLElement {
       grid_house: { stroke: effectiveGridColor, glowColor: effectiveGridColor, active: gridActiveForHouse, direction: gridAnimationDirection },
       house_inv: { stroke: effectiveGridColor, glowColor: effectiveGridColor, active: gridActiveForHouse, direction: -gridAnimationDirection },
       car1: { stroke: carFlowColor, glowColor: carFlowColor, active: showCar1 && Math.abs(car1PowerValue) > 10, direction: 1 },
-      car2: { stroke: carFlowColor, glowColor: carFlowColor, active: showCar2 && Math.abs(car2PowerValue) > 10, direction: 1 }
+      car2: { stroke: carFlowColor, glowColor: carFlowColor, active: showCar2 && Math.abs(car2PowerValue) > 10, direction: 1 },
+      heatPump: { stroke: heatPumpFlowColor, glowColor: heatPumpFlowColor, active: hasHeatPumpSensor && heat_pump_w > 10, direction: 1 }
     };
 
     flows.pv1.direction = 1;
     flows.pv2.direction = 1;
     flows.car1.direction = 1;
     flows.car2.direction = 1;
+    flows.heatPump.direction = 1;
 
     const flowDurations = Object.fromEntries(
       Object.entries(flows).map(([key, state]) => [key, state.active ? 1 : 0])
@@ -1393,7 +1428,8 @@ class LuminaEnergyCard extends HTMLElement {
       grid_house: FLOW_PATHS.grid_house,
       house_inv: FLOW_PATHS.house_inv,
       car1: carLayout.car1.path,
-      car2: carLayout.car2.path
+      car2: carLayout.car2.path,
+      heatPump: FLOW_PATHS.heatPump
     };
 
     const car1Color = resolveColor(config.car1_color, C_WHITE);
@@ -1447,10 +1483,19 @@ class LuminaEnergyCard extends HTMLElement {
       batteryPower: { text: this.formatPower(Math.abs(total_bat_w), use_kw), fontSize: battery_power_font_size, fill: bat_col },
       load: (loadLines && loadLines.length) ? { lines: loadLines, y: loadY, fontSize: load_font_size, fill: effectiveLoadTextColor } : { text: this.formatPower(loadValue, use_kw), fontSize: load_font_size, fill: effectiveLoadTextColor },
       grid: { text: gridNet > 0 ? `${label_importing} ${this.formatPower(Math.abs(gridNet), use_kw)}` : gridNet < 0 ? `${label_exporting} ${this.formatPower(Math.abs(gridNet), use_kw)}` : this.formatPower(Math.abs(gridNet), use_kw), fontSize: grid_font_size, fill: effectiveGridColor, lines: gridLines },
+      heatPump: {
+        text: hasHeatPumpSensor ? this.formatPower(heat_pump_w, use_kw) : '',
+        fontSize: heat_pump_font_size,
+        fill: heatPumpTextColor,
+        visible: hasHeatPumpSensor
+      },
       car1: car1View,
       car2: car2View,
       popup: { 
-        lines: popupPvValues.map((v, i) => v !== null ? `${popupPvNames[i]}: ${this.formatPower(v, use_kw)}` : ''),
+        lines: popupPvValues.map((v, i) => {
+          const sensorId = [config.sensor_popup_pv_1, config.sensor_popup_pv_2, config.sensor_popup_pv_3, config.sensor_popup_pv_4, config.sensor_popup_pv_5, config.sensor_popup_pv_6][i];
+          return v !== null ? `${popupPvNames[i]}: ${this.formatPopupValue(v, sensorId)}` : '';
+        }),
         hasContent: popupPvValues.some(v => v !== null)
       },
       flows,
@@ -1500,9 +1545,9 @@ class LuminaEnergyCard extends HTMLElement {
         .flow-arrow { pointer-events: none; opacity: 0; transition: opacity 0.35s ease; }
         .debug-grid line { pointer-events: none; }
         .debug-grid text { pointer-events: none; font-family: sans-serif; }
-        @keyframes pulse-cyan { 0% { filter: drop-shadow(0 0 2px #00FFFF); opacity: 0.9; } 50% { filter: drop-shadow(0 0 10px #00FFFF); opacity: 1; } 100% { filter: drop-shadow(0 0 2px #00FFFF); opacity: 0.9; } }
+        @keyframes pulse-cyan { 0% { filter: drop-shadow(0 0 2px #00FFFF); } 50% { filter: drop-shadow(0 0 10px #00FFFF); } 100% { filter: drop-shadow(0 0 2px #00FFFF); } }
         .alive-box { animation: pulse-cyan 3s infinite ease-in-out; stroke: #00FFFF; stroke-width: 2px; fill: #001428; }
-        .alive-text { animation: pulse-cyan 3s infinite ease-in-out; fill: #00FFFF; text-shadow: 0 0 5px #00FFFF; }
+        .alive-text { fill: #00FFFF; }
         @keyframes wave-slide { 0% { transform: translateX(0); } 100% { transform: translateX(-80px); } }
         .liquid-shape { animation: wave-slide 2s linear infinite; }
         .title-text { fill: #00FFFF; font-weight: 900; font-family: 'Orbitron', sans-serif; text-anchor: middle; letter-spacing: 3px; text-transform: uppercase; }
@@ -1589,6 +1634,9 @@ class LuminaEnergyCard extends HTMLElement {
           <path class="track-path" d="${viewState.flowPaths.car2}" />
           <path class="flow-path" data-flow-key="car2" d="${viewState.flowPaths.car2}" stroke="${viewState.flows.car2.stroke}" style="opacity:0;" />
           ${buildArrowGroupSvg('car2', viewState.flows.car2)}
+          <path class="track-path" d="${viewState.flowPaths.heatPump}" />
+          <path class="flow-path" data-flow-key="heatPump" d="${viewState.flowPaths.heatPump}" stroke="${viewState.flows.heatPump.stroke}" style="opacity:0;" />
+          ${buildArrowGroupSvg('heatPump', viewState.flows.heatPump)}
 
           ${pvLineElements}
 
@@ -1599,6 +1647,7 @@ class LuminaEnergyCard extends HTMLElement {
           <text data-role="load-line-0" x="${TEXT_POSITIONS.home.x}" y="${TEXT_POSITIONS.home.y}" transform="${TEXT_TRANSFORMS.home}" fill="${(viewState.load.lines && viewState.load.lines[0] && viewState.load.lines[0].fill) || viewState.load.fill}" font-size="${viewState.load.fontSize}" style="${TXT_STYLE}; display:none;"></text>
           <text data-role="load-line-1" x="${TEXT_POSITIONS.home.x}" y="${TEXT_POSITIONS.home.y}" transform="${TEXT_TRANSFORMS.home}" fill="${(viewState.load.lines && viewState.load.lines[1] && viewState.load.lines[1].fill) || viewState.load.fill}" font-size="${viewState.load.fontSize}" style="${TXT_STYLE}; display:none;"></text>
           <text data-role="load-line-2" x="${TEXT_POSITIONS.home.x}" y="${TEXT_POSITIONS.home.y}" transform="${TEXT_TRANSFORMS.home}" fill="${(viewState.load.lines && viewState.load.lines[2] && viewState.load.lines[2].fill) || viewState.load.fill}" font-size="${viewState.load.fontSize}" style="${TXT_STYLE}; display:none;"></text>
+          <text data-role="heat-pump-power" x="${TEXT_POSITIONS.heatPump.x}" y="${TEXT_POSITIONS.heatPump.y}" transform="${TEXT_TRANSFORMS.heatPump}" fill="${viewState.heatPump.fill}" font-size="${viewState.heatPump.fontSize}" style="${TXT_STYLE}; display:${viewState.heatPump.visible ? 'inline' : 'none'};">${viewState.heatPump.text}</text>
           <text data-role="grid-power" x="${TEXT_POSITIONS.grid.x}" y="${TEXT_POSITIONS.grid.y}" transform="${TEXT_TRANSFORMS.grid}" fill="${viewState.grid.fill}" font-size="${viewState.grid.fontSize}" style="${TXT_STYLE}">${viewState.grid.text}</text>
 
           <text data-role="grid-line-0" x="${TEXT_POSITIONS.grid.x}" y="${TEXT_POSITIONS.grid.y}" transform="${TEXT_TRANSFORMS.grid}" fill="${(viewState.grid.lines && viewState.grid.lines[0] && viewState.grid.lines[0].fill) || viewState.grid.fill}" font-size="${viewState.grid.fontSize}" style="${TXT_STYLE}; display:none;"></text>
@@ -1677,6 +1726,7 @@ class LuminaEnergyCard extends HTMLElement {
       loadLines: Array.from({ length: 3 }, (_, index) => root.querySelector(`[data-role="load-line-${index}"]`)),
       gridText: root.querySelector('[data-role="grid-power"]'),
       gridLines: Array.from({ length: 2 }, (_, index) => root.querySelector(`[data-role="grid-line-${index}"]`)),
+      heatPumpText: root.querySelector('[data-role="heat-pump-power"]'),
       car1Label: root.querySelector('[data-role="car1-label"]'),
       car1Power: root.querySelector('[data-role="car1-power"]'),
       car1Soc: root.querySelector('[data-role="car1-soc"]'),
@@ -1702,7 +1752,8 @@ class LuminaEnergyCard extends HTMLElement {
         grid_house: root.querySelector('[data-flow-key="grid_house"]'),
         house_inv: root.querySelector('[data-flow-key="house_inv"]'),
         car1: root.querySelector('[data-flow-key="car1"]'),
-        car2: root.querySelector('[data-flow-key="car2"]')
+        car2: root.querySelector('[data-flow-key="car2"]'),
+        heatPump: root.querySelector('[data-flow-key="heatPump"]')
       },
       arrows: {
         pv1: root.querySelector('[data-arrow-key="pv1"]'),
@@ -1713,7 +1764,8 @@ class LuminaEnergyCard extends HTMLElement {
         grid_house: root.querySelector('[data-arrow-key="grid_house"]'),
         house_inv: root.querySelector('[data-arrow-key="house_inv"]'),
         car1: root.querySelector('[data-arrow-key="car1"]'),
-        car2: root.querySelector('[data-arrow-key="car2"]')
+        car2: root.querySelector('[data-arrow-key="car2"]'),
+        heatPump: root.querySelector('[data-arrow-key="heatPump"]')
       },
       arrowShapes: {
         pv1: Array.from(root.querySelectorAll('[data-arrow-shape="pv1"]')),
@@ -1724,7 +1776,8 @@ class LuminaEnergyCard extends HTMLElement {
         grid_house: Array.from(root.querySelectorAll('[data-arrow-shape="grid_house"]')),
         house_inv: Array.from(root.querySelectorAll('[data-arrow-shape="house_inv"]')),
         car1: Array.from(root.querySelectorAll('[data-arrow-shape="car1"]')),
-        car2: Array.from(root.querySelectorAll('[data-arrow-shape="car2"]'))
+        car2: Array.from(root.querySelectorAll('[data-arrow-shape="car2"]')),
+        heatPump: Array.from(root.querySelectorAll('[data-arrow-shape="heatPump"]'))
       }
     };
 
@@ -1787,7 +1840,10 @@ class LuminaEnergyCard extends HTMLElement {
       config.sensor_popup_pv_6_name && config.sensor_popup_pv_6_name.trim() ? config.sensor_popup_pv_6_name.trim() : this.getEntityName(config.sensor_popup_pv_6)
     ];
 
-    const lines = popupPvValues.map((v, i) => v !== null ? `${popupPvNames[i]}: ${this.formatPower(v, use_kw)}` : '').filter(line => line);
+    const lines = popupPvValues.map((v, i) => {
+      const sensorId = [config.sensor_popup_pv_1, config.sensor_popup_pv_2, config.sensor_popup_pv_3, config.sensor_popup_pv_4, config.sensor_popup_pv_5, config.sensor_popup_pv_6][i];
+      return v !== null ? `${popupPvNames[i]}: ${this.formatPopupValue(v, sensorId)}` : '';
+    }).filter(line => line);
     if (!lines.length) return;
     
     // Calculate popup dimensions based on content
@@ -1919,7 +1975,10 @@ class LuminaEnergyCard extends HTMLElement {
       config.sensor_popup_bat_6_name && config.sensor_popup_bat_6_name.trim() ? config.sensor_popup_bat_6_name.trim() : this.getEntityName(config.sensor_popup_bat_6)
     ];
 
-    const lines = popupBatValues.map((v, i) => v !== null ? `${popupBatNames[i]}: ${this.formatPower(v, use_kw)}` : '').filter(line => line);
+    const lines = popupBatValues.map((v, i) => {
+      const sensorId = [config.sensor_popup_bat_1, config.sensor_popup_bat_2, config.sensor_popup_bat_3, config.sensor_popup_bat_4, config.sensor_popup_bat_5, config.sensor_popup_bat_6][i];
+      return v !== null ? `${popupBatNames[i]}: ${this.formatPopupValue(v, sensorId)}` : '';
+    }).filter(line => line);
     if (!lines.length) return;
 
     const maxLineLength = Math.max(...lines.map(line => line.length));
@@ -2043,7 +2102,10 @@ class LuminaEnergyCard extends HTMLElement {
     ];
     
     const use_kw = config.display_unit === 'kW';
-    const lines = popupHouseValues.map((v, i) => v !== null ? `${popupHouseNames[i]}: ${this.formatPower(v, use_kw)}` : '').filter(line => line);
+    const lines = popupHouseValues.map((v, i) => {
+      const sensorId = [config.sensor_popup_house_1, config.sensor_popup_house_2, config.sensor_popup_house_3, config.sensor_popup_house_4, config.sensor_popup_house_5, config.sensor_popup_house_6][i];
+      return v !== null ? `${popupHouseNames[i]}: ${this.formatPopupValue(v, sensorId)}` : '';
+    }).filter(line => line);
     if (!lines.length) return;
     
     // Calculate popup dimensions based on content
@@ -2376,6 +2438,29 @@ class LuminaEnergyCard extends HTMLElement {
       }
     }
 
+    if (refs.heatPumpText && viewState.heatPump) {
+      const nextHeatPump = viewState.heatPump;
+      const prevHeatPump = prev.heatPump || {};
+      const isVisible = Boolean(nextHeatPump.visible);
+      const desiredDisplay = isVisible ? 'inline' : 'none';
+      if (refs.heatPumpText.style.display !== desiredDisplay) {
+        refs.heatPumpText.style.display = desiredDisplay;
+      }
+      if (isVisible) {
+        if (!prev.heatPump || prevHeatPump.text !== nextHeatPump.text) {
+          refs.heatPumpText.textContent = nextHeatPump.text;
+        }
+        if (!prev.heatPump || prevHeatPump.fill !== nextHeatPump.fill) {
+          refs.heatPumpText.setAttribute('fill', nextHeatPump.fill);
+        }
+        if (!prev.heatPump || prevHeatPump.fontSize !== nextHeatPump.fontSize) {
+          refs.heatPumpText.setAttribute('font-size', nextHeatPump.fontSize);
+        }
+      } else if (refs.heatPumpText.textContent !== '') {
+        refs.heatPumpText.textContent = '';
+      }
+    }
+
     const syncCarText = (node, viewEntry, prevEntry, displayFlag) => {
       if (!node || !viewEntry) {
         return;
@@ -2568,6 +2653,7 @@ class LuminaEnergyCard extends HTMLElement {
       batteryPower: { ...viewState.batteryPower },
       load: { ...viewState.load },
       grid: { ...viewState.grid },
+      heatPump: { ...viewState.heatPump },
       car1: viewState.car1 ? {
         visible: viewState.car1.visible,
         label: { ...viewState.car1.label },
@@ -2626,7 +2712,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
         },
         fields: {
           card_title: { label: 'Card Title', helper: 'Title displayed at the top of the card. Leave blank to disable.' },
-          background_image: { label: 'Background Image Path', helper: 'Path to the background image (e.g., /local/community/lumina-energy-card/lumina_background.jpg).' },
+          background_image: { label: 'Background Image Path', helper: 'Path to the background image (e.g., /local/community/lumina-energy-card/lumina_background.png).' },
+          background_image_heat_pump: { label: 'Background Image Heat Pump', helper: 'Path to the heat pump background image (e.g., /local/community/lumina-energy-card/lumina-energy-card-hp.png).' },
           language: { label: 'Language', helper: 'Choose the editor language.' },
           display_unit: { label: 'Display Unit', helper: 'Unit used when formatting power values.' },
           update_interval: { label: 'Update Interval', helper: 'Refresh cadence for card updates (0 disables throttling).' },
@@ -2662,6 +2749,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_bat4_power: { label: 'Battery 4 Power' },
           sensor_home_load: { label: 'Home Load/Consumption (Required)', helper: 'Total household consumption sensor.' },
           sensor_home_load_secondary: { label: 'Home Load (Inverter 2)', helper: 'Optional house load sensor for the second inverter.' },
+          sensor_heat_pump_consumption: { label: 'Heat Pump Consumption', helper: 'Sensor for heat pump energy consumption.' },
           sensor_grid_power: { label: 'Grid Power', helper: 'Positive/negative grid flow sensor. Specify either this sensor or both Grid Import Sensor and Grid Export Sensor.' },
           sensor_grid_import: { label: 'Grid Import Sensor', helper: 'Optional entity reporting grid import (positive) power.' },
           sensor_grid_export: { label: 'Grid Export Sensor', helper: 'Optional entity reporting grid export (positive) power.' },
@@ -2723,6 +2811,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
           car2_name_color: { label: 'Car 2 Name Color', helper: 'Color applied to the Car 2 name label.' },
           car1_color: { label: 'Car 1 Color', helper: 'Color applied to Car 1 power value.' },
           car2_color: { label: 'Car 2 Color', helper: 'Color applied to Car 2 power value.' },
+          heat_pump_flow_color: { label: 'Heat Pump Flow Color', helper: 'Color applied to the heat pump flow animation.' },
+          heat_pump_text_color: { label: 'Heat Pump Text Color', helper: 'Color applied to the heat pump power text.' },
           header_font_size: { label: 'Header Font Size (px)', helper: 'Default 16' },
           daily_label_font_size: { label: 'Daily Label Font Size (px)', helper: 'Default 12' },
           daily_value_font_size: { label: 'Daily Value Font Size (px)', helper: 'Default 20' },
@@ -2730,6 +2820,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           battery_soc_font_size: { label: 'Battery SOC Font Size (px)', helper: 'Default 20' },
           battery_power_font_size: { label: 'Battery Power Font Size (px)', helper: 'Default 16' },
           load_font_size: { label: 'Load Font Size (px)', helper: 'Default 15' },
+          heat_pump_font_size: { label: 'Heat Pump Font Size (px)', helper: 'Default 16' },
           grid_font_size: { label: 'Grid Font Size (px)', helper: 'Default 15' },
           car_power_font_size: { label: 'Car Power Font Size (px)', helper: 'Default 15' },
           car2_power_font_size: { label: 'Car 2 Power Font Size (px)', helper: 'Default 15' },
@@ -2784,7 +2875,31 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_popup_house_6: { label: 'House Popup 6', helper: 'Entity for house popup line 6.' },
           sensor_popup_house_6_name: { label: 'House Popup 6 Name', helper: 'Optional custom name for house popup line 6. Leave blank to use entity name.' },
           sensor_popup_house_6_color: { label: 'House Popup 6 Color', helper: 'Color for house popup line 6 text.' },
-          sensor_popup_house_6_font_size: { label: 'House Popup 6 Font Size (px)', helper: 'Font size for house popup line 6. Default 16' }
+          sensor_popup_house_6_font_size: { label: 'House Popup 6 Font Size (px)', helper: 'Font size for house popup line 6. Default 16' },
+          sensor_popup_bat_1: { label: 'Battery Popup 1', helper: 'Entity for battery popup line 1.' },
+          sensor_popup_bat_1_name: { label: 'Battery Popup 1 Name', helper: 'Optional custom name for battery popup line 1. Leave blank to use entity name.' },
+          sensor_popup_bat_1_color: { label: 'Battery Popup 1 Color', helper: 'Color for battery popup line 1 text.' },
+          sensor_popup_bat_1_font_size: { label: 'Battery Popup 1 Font Size (px)', helper: 'Font size for battery popup line 1. Default 16' },
+          sensor_popup_bat_2: { label: 'Battery Popup 2', helper: 'Entity for battery popup line 2.' },
+          sensor_popup_bat_2_name: { label: 'Battery Popup 2 Name', helper: 'Optional custom name for battery popup line 2. Leave blank to use entity name.' },
+          sensor_popup_bat_2_color: { label: 'Battery Popup 2 Color', helper: 'Color for battery popup line 2 text.' },
+          sensor_popup_bat_2_font_size: { label: 'Battery Popup 2 Font Size (px)', helper: 'Font size for battery popup line 2. Default 16' },
+          sensor_popup_bat_3: { label: 'Battery Popup 3', helper: 'Entity for battery popup line 3.' },
+          sensor_popup_bat_3_name: { label: 'Battery Popup 3 Name', helper: 'Optional custom name for battery popup line 3. Leave blank to use entity name.' },
+          sensor_popup_bat_3_color: { label: 'Battery Popup 3 Color', helper: 'Color for battery popup line 3 text.' },
+          sensor_popup_bat_3_font_size: { label: 'Battery Popup 3 Font Size (px)', helper: 'Font size for battery popup line 3. Default 16' },
+          sensor_popup_bat_4: { label: 'Battery Popup 4', helper: 'Entity for battery popup line 4.' },
+          sensor_popup_bat_4_name: { label: 'Battery Popup 4 Name', helper: 'Optional custom name for battery popup line 4. Leave blank to use entity name.' },
+          sensor_popup_bat_4_color: { label: 'Battery Popup 4 Color', helper: 'Color for battery popup line 4 text.' },
+          sensor_popup_bat_4_font_size: { label: 'Battery Popup 4 Font Size (px)', helper: 'Font size for battery popup line 4. Default 16' },
+          sensor_popup_bat_5: { label: 'Battery Popup 5', helper: 'Entity for battery popup line 5.' },
+          sensor_popup_bat_5_name: { label: 'Battery Popup 5 Name', helper: 'Optional custom name for battery popup line 5. Leave blank to use entity name.' },
+          sensor_popup_bat_5_color: { label: 'Battery Popup 5 Color', helper: 'Color for battery popup line 5 text.' },
+          sensor_popup_bat_5_font_size: { label: 'Battery Popup 5 Font Size (px)', helper: 'Font size for battery popup line 5. Default 16' },
+          sensor_popup_bat_6: { label: 'Battery Popup 6', helper: 'Entity for battery popup line 6.' },
+          sensor_popup_bat_6_name: { label: 'Battery Popup 6 Name', helper: 'Optional custom name for battery popup line 6. Leave blank to use entity name.' },
+          sensor_popup_bat_6_color: { label: 'Battery Popup 6 Color', helper: 'Color for battery popup line 6 text.' },
+          sensor_popup_bat_6_font_size: { label: 'Battery Popup 6 Font Size (px)', helper: 'Font size for battery popup line 6. Default 16' }
         },
         options: {
           languages: [
@@ -2836,7 +2951,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
         },
         fields: {
           card_title: { label: 'Titolo scheda', helper: 'Titolo mostrato nella parte superiore della scheda. Lasciare vuoto per disabilitare.' },
-          background_image: { label: 'Percorso immagine di sfondo', helper: 'Percorso dell immagine di sfondo (es. /local/community/lumina-energy-card/lumina_background.jpg).' },
+          background_image: { label: 'Percorso immagine di sfondo', helper: 'Percorso dell immagine di sfondo (es. /local/community/lumina-energy-card/lumina_background.png).' },
+          background_image_heat_pump: { label: 'Immagine di sfondo pompa di calore', helper: 'Percorso dell immagine di sfondo per la pompa di calore (es. /local/community/lumina-energy-card/lumina-energy-card-hp.png).' },
           language: { label: 'Lingua', helper: 'Seleziona la lingua dell editor.' },
           display_unit: { label: 'Unita di visualizzazione', helper: 'Unita usata per i valori di potenza.' },
           update_interval: { label: 'Intervallo di aggiornamento', helper: 'Frequenza di aggiornamento della scheda (0 disattiva il limite).' },
@@ -2866,6 +2982,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_bat4_power: { label: 'Batteria 4 potenza' },
           sensor_home_load: { label: 'Carico casa/consumo (Obbligatorio)', helper: 'Sensore del consumo totale dell abitazione.' },
           sensor_home_load_secondary: { label: 'Carico casa (Inverter 2)', helper: 'Sensore opzionale del carico domestico per il secondo inverter.' },
+          sensor_heat_pump_consumption: { label: 'Consumo pompa di calore', helper: 'Sensore per il consumo energetico della pompa di calore.' },
           sensor_grid_power: { label: 'Potenza rete', helper: 'Sensore flusso rete positivo/negativo. Specificare o questo sensore o entrambi il Sensore import rete e il Sensore export rete.' },
           sensor_grid_import: { label: 'Sensore import rete', helper: 'Entita opzionale che riporta la potenza di import.' },
           sensor_grid_export: { label: 'Sensore export rete', helper: 'Entita opzionale che riporta la potenza di export.' },
@@ -2927,6 +3044,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
           car2_name_color: { label: 'Colore nome Auto 2', helper: 'Colore applicato all etichetta del nome Auto 2.' },
           car1_color: { label: 'Colore Auto 1', helper: 'Colore applicato al valore potenza Auto 1.' },
           car2_color: { label: 'Colore Auto 2', helper: 'Colore applicato al valore potenza Auto 2.' },
+          heat_pump_flow_color: { label: 'Colore flusso pompa di calore', helper: 'Colore applicato all animazione del flusso della pompa di calore.' },
+          heat_pump_text_color: { label: 'Colore testo pompa di calore', helper: 'Colore applicato al testo della potenza della pompa di calore.' },
           header_font_size: { label: 'Dimensione titolo (px)', helper: 'Predefinita 16' },
           daily_label_font_size: { label: 'Dimensione etichetta giornaliera (px)', helper: 'Predefinita 12' },
           daily_value_font_size: { label: 'Dimensione valore giornaliero (px)', helper: 'Predefinita 20' },
@@ -2934,6 +3053,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           battery_soc_font_size: { label: 'Dimensione SOC batteria (px)', helper: 'Predefinita 20' },
           battery_power_font_size: { label: 'Dimensione potenza batteria (px)', helper: 'Predefinita 16' },
           load_font_size: { label: 'Dimensione carico (px)', helper: 'Predefinita 15' },
+          heat_pump_font_size: { label: 'Dimensione pompa di calore (px)', helper: 'Predefinita 16' },
           grid_font_size: { label: 'Dimensione rete (px)', helper: 'Predefinita 15' },
           car_power_font_size: { label: 'Dimensione potenza auto (px)', helper: 'Predefinita 15' },
           car2_power_font_size: { label: 'Dimensione potenza Auto 2 (px)', helper: 'Predefinita 15' },
@@ -2988,7 +3108,31 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_popup_house_6: { label: 'House Popup 6', helper: 'Entita per la riga 6 del popup casa.' },
           sensor_popup_house_6_name: { label: 'Nome House Popup 6', helper: 'Nome personalizzato opzionale per la riga 6 del popup casa. Lasciare vuoto per usare il nome entità.' },
           sensor_popup_house_6_color: { label: 'Colore House Popup 6', helper: 'Colore per il testo della riga 6 del popup casa.' },
-          sensor_popup_house_6_font_size: { label: 'Dimensione carattere House Popup 6 (px)', helper: 'Dimensione carattere per la riga 6 del popup casa. Predefinita 16' }
+          sensor_popup_house_6_font_size: { label: 'Dimensione carattere House Popup 6 (px)', helper: 'Dimensione carattere per la riga 6 del popup casa. Predefinita 16' },
+          sensor_popup_bat_1: { label: 'Battery Popup 1', helper: 'Entità per la riga 1 del popup batteria.' },
+          sensor_popup_bat_1_name: { label: 'Nome Battery Popup 1', helper: 'Nome personalizzato opzionale per la riga 1 del popup batteria. Lasciare vuoto per usare il nome entità.' },
+          sensor_popup_bat_1_color: { label: 'Colore Battery Popup 1', helper: 'Colore per il testo della riga 1 del popup batteria.' },
+          sensor_popup_bat_1_font_size: { label: 'Dimensione carattere Battery Popup 1 (px)', helper: 'Dimensione carattere per la riga 1 del popup batteria. Predefinita 16' },
+          sensor_popup_bat_2: { label: 'Battery Popup 2', helper: 'Entità per la riga 2 del popup batteria.' },
+          sensor_popup_bat_2_name: { label: 'Nome Battery Popup 2', helper: 'Nome personalizzato opzionale per la riga 2 del popup batteria. Lasciare vuoto per usare il nome entità.' },
+          sensor_popup_bat_2_color: { label: 'Colore Battery Popup 2', helper: 'Colore per il testo della riga 2 del popup batteria.' },
+          sensor_popup_bat_2_font_size: { label: 'Dimensione carattere Battery Popup 2 (px)', helper: 'Dimensione carattere per la riga 2 del popup batteria. Predefinita 16' },
+          sensor_popup_bat_3: { label: 'Battery Popup 3', helper: 'Entità per la riga 3 del popup batteria.' },
+          sensor_popup_bat_3_name: { label: 'Nome Battery Popup 3', helper: 'Nome personalizzato opzionale per la riga 3 del popup batteria. Lasciare vuoto per usare il nome entità.' },
+          sensor_popup_bat_3_color: { label: 'Colore Battery Popup 3', helper: 'Colore per il testo della riga 3 del popup batteria.' },
+          sensor_popup_bat_3_font_size: { label: 'Dimensione carattere Battery Popup 3 (px)', helper: 'Dimensione carattere per la riga 3 del popup batteria. Predefinita 16' },
+          sensor_popup_bat_4: { label: 'Battery Popup 4', helper: 'Entità per la riga 4 del popup batteria.' },
+          sensor_popup_bat_4_name: { label: 'Nome Battery Popup 4', helper: 'Nome personalizzato opzionale per la riga 4 del popup batteria. Lasciare vuoto per usare il nome entità.' },
+          sensor_popup_bat_4_color: { label: 'Colore Battery Popup 4', helper: 'Colore per il testo della riga 4 del popup batteria.' },
+          sensor_popup_bat_4_font_size: { label: 'Dimensione carattere Battery Popup 4 (px)', helper: 'Dimensione carattere per la riga 4 del popup batteria. Predefinita 16' },
+          sensor_popup_bat_5: { label: 'Battery Popup 5', helper: 'Entità per la riga 5 del popup batteria.' },
+          sensor_popup_bat_5_name: { label: 'Nome Battery Popup 5', helper: 'Nome personalizzato opzionale per la riga 5 del popup batteria. Lasciare vuoto per usare il nome entità.' },
+          sensor_popup_bat_5_color: { label: 'Colore Battery Popup 5', helper: 'Colore per il testo della riga 5 del popup batteria.' },
+          sensor_popup_bat_5_font_size: { label: 'Dimensione carattere Battery Popup 5 (px)', helper: 'Dimensione carattere per la riga 5 del popup batteria. Predefinita 16' },
+          sensor_popup_bat_6: { label: 'Battery Popup 6', helper: 'Entità per la riga 6 del popup batteria.' },
+          sensor_popup_bat_6_name: { label: 'Nome Battery Popup 6', helper: 'Nome personalizzato opzionale per la riga 6 del popup batteria. Lasciare vuoto per usare il nome entità.' },
+          sensor_popup_bat_6_color: { label: 'Colore Battery Popup 6', helper: 'Colore per il testo della riga 6 del popup batteria.' },
+          sensor_popup_bat_6_font_size: { label: 'Dimensione carattere Battery Popup 6 (px)', helper: 'Dimensione carattere per la riga 6 del popup batteria. Predefinita 16' }
         },
         options: {
           languages: [
@@ -3040,7 +3184,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
         },
         fields: {
           card_title: { label: 'Kartentitel', helper: 'Titel oben auf der Karte. Leer lassen, um zu deaktivieren.' },
-          background_image: { label: 'Pfad zum Hintergrundbild', helper: 'Pfad zum Hintergrundbild (z. B. /local/community/lumina-energy-card/lumina_background.jpg).' },
+          background_image: { label: 'Pfad zum Hintergrundbild', helper: 'Pfad zum Hintergrundbild (z. B. /local/community/lumina-energy-card/lumina_background.png).' },
+          background_image_heat_pump: { label: 'Hintergrundbild Waermepumpe', helper: 'Pfad zum Waermepumpen-Hintergrundbild (z. B. /local/community/lumina-energy-card/lumina-energy-card-hp.png).' },
           language: { label: 'Sprache', helper: 'Editor-Sprache waehlen.' },
           display_unit: { label: 'Anzeigeeinheit', helper: 'Einheit fuer Leistungswerte.' },
           update_interval: { label: 'Aktualisierungsintervall', helper: 'Aktualisierungsfrequenz der Karte (0 deaktiviert das Limit).' },
@@ -3070,6 +3215,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_bat4_power: { label: 'Batterie 4 Leistung' },
           sensor_home_load: { label: 'Hausverbrauch (Erforderlich)', helper: 'Sensor fuer Gesamtverbrauch des Haushalts.' },
           sensor_home_load_secondary: { label: 'Hausverbrauch (WR 2)', helper: 'Optionale Hauslast-Entitaet fuer den zweiten Wechselrichter.' },
+          sensor_heat_pump_consumption: { label: 'Waermepumpenverbrauch', helper: 'Sensor fuer den Energieverbrauch der Waermepumpe.' },
           sensor_grid_power: { label: 'Netzleistung', helper: 'Sensor fuer positiven/negativen Netzfluss. Geben Sie entweder diesen Sensor an oder sowohl den Netzimport-Sensor als auch den Netzexport-Sensor.' },
           sensor_grid_import: { label: 'Netzimport Sensor', helper: 'Optionale Entitaet fuer positiven Netzimport.' },
           sensor_grid_export: { label: 'Netzexport Sensor', helper: 'Optionale Entitaet fuer positiven Netzexport.' },
@@ -3131,6 +3277,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
           car2_name_color: { label: 'Farbe Name Auto 2', helper: 'Farbe fuer die Bezeichnung von Fahrzeug 2.' },
           car1_color: { label: 'Farbe Auto 1', helper: 'Farbe fuer die Leistungsanzeige von Fahrzeug 1.' },
           car2_color: { label: 'Farbe Auto 2', helper: 'Farbe fuer die Leistungsanzeige von Fahrzeug 2.' },
+          heat_pump_flow_color: { label: 'Waermepumpenfluss Farbe', helper: 'Farbe fuer die Waermepumpenfluss Animation.' },
+          heat_pump_text_color: { label: 'Waermepumpentext Farbe', helper: 'Farbe fuer den Waermepumpenleistungstext.' },
           header_font_size: { label: 'Schriftgroesse Titel (px)', helper: 'Standard 16' },
           daily_label_font_size: { label: 'Schriftgroesse Tageslabel (px)', helper: 'Standard 12' },
           daily_value_font_size: { label: 'Schriftgroesse Tageswert (px)', helper: 'Standard 20' },
@@ -3138,6 +3286,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           battery_soc_font_size: { label: 'Schriftgroesse Batterie SOC (px)', helper: 'Standard 20' },
           battery_power_font_size: { label: 'Schriftgroesse Batterie Leistung (px)', helper: 'Standard 16' },
           load_font_size: { label: 'Schriftgroesse Last (px)', helper: 'Standard 15' },
+          heat_pump_font_size: { label: 'Schriftgroesse Waermepumpe (px)', helper: 'Standard 16' },
           grid_font_size: { label: 'Schriftgroesse Netz (px)', helper: 'Standard 15' },
           car_power_font_size: { label: 'Schriftgroesse Fahrzeugleistung (px)', helper: 'Standard 15' },
           car_soc_font_size: { label: 'Schriftgroesse Fahrzeug SOC (px)', helper: 'Standard 12' },
@@ -3188,7 +3337,31 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_popup_house_6: { label: 'House Popup 6', helper: 'Entitaet fuer House Popup Zeile 6.' },
           sensor_popup_house_6_name: { label: 'Name House Popup 6', helper: 'Optionaler benutzerdefinierter Name fuer House Popup Zeile 6. Leer lassen, um den Entitaetsnamen zu verwenden.' },
           sensor_popup_house_6_color: { label: 'Farbe House Popup 6', helper: 'Farbe fuer House Popup Zeile 6 Text.' },
-          sensor_popup_house_6_font_size: { label: 'Schriftgroesse House Popup 6 (px)', helper: 'Schriftgroesse fuer House Popup Zeile 6. Standard 16' }
+          sensor_popup_house_6_font_size: { label: 'Schriftgroesse House Popup 6 (px)', helper: 'Schriftgroesse fuer House Popup Zeile 6. Standard 16' },
+          sensor_popup_bat_1: { label: 'Battery Popup 1', helper: 'Entitaet fuer Battery Popup Zeile 1.' },
+          sensor_popup_bat_1_name: { label: 'Name Battery Popup 1', helper: 'Optionaler benutzerdefinierter Name fuer Battery Popup Zeile 1. Leer lassen, um den Entitaetsnamen zu verwenden.' },
+          sensor_popup_bat_1_color: { label: 'Farbe Battery Popup 1', helper: 'Farbe fuer Battery Popup Zeile 1 Text.' },
+          sensor_popup_bat_1_font_size: { label: 'Schriftgroesse Battery Popup 1 (px)', helper: 'Schriftgroesse fuer Battery Popup Zeile 1. Standard 16' },
+          sensor_popup_bat_2: { label: 'Battery Popup 2', helper: 'Entitaet fuer Battery Popup Zeile 2.' },
+          sensor_popup_bat_2_name: { label: 'Name Battery Popup 2', helper: 'Optionaler benutzerdefinierter Name fuer Battery Popup Zeile 2. Leer lassen, um den Entitaetsnamen zu verwenden.' },
+          sensor_popup_bat_2_color: { label: 'Farbe Battery Popup 2', helper: 'Farbe fuer Battery Popup Zeile 2 Text.' },
+          sensor_popup_bat_2_font_size: { label: 'Schriftgroesse Battery Popup 2 (px)', helper: 'Schriftgroesse fuer Battery Popup Zeile 2. Standard 16' },
+          sensor_popup_bat_3: { label: 'Battery Popup 3', helper: 'Entitaet fuer Battery Popup Zeile 3.' },
+          sensor_popup_bat_3_name: { label: 'Name Battery Popup 3', helper: 'Optionaler benutzerdefinierter Name fuer Battery Popup Zeile 3. Leer lassen, um den Entitaetsnamen zu verwenden.' },
+          sensor_popup_bat_3_color: { label: 'Farbe Battery Popup 3', helper: 'Farbe fuer Battery Popup Zeile 3 Text.' },
+          sensor_popup_bat_3_font_size: { label: 'Schriftgroesse Battery Popup 3 (px)', helper: 'Schriftgroesse fuer Battery Popup Zeile 3. Standard 16' },
+          sensor_popup_bat_4: { label: 'Battery Popup 4', helper: 'Entitaet fuer Battery Popup Zeile 4.' },
+          sensor_popup_bat_4_name: { label: 'Name Battery Popup 4', helper: 'Optionaler benutzerdefinierter Name fuer Battery Popup Zeile 4. Leer lassen, um den Entitaetsnamen zu verwenden.' },
+          sensor_popup_bat_4_color: { label: 'Farbe Battery Popup 4', helper: 'Farbe fuer Battery Popup Zeile 4 Text.' },
+          sensor_popup_bat_4_font_size: { label: 'Schriftgroesse Battery Popup 4 (px)', helper: 'Schriftgroesse fuer Battery Popup Zeile 4. Standard 16' },
+          sensor_popup_bat_5: { label: 'Battery Popup 5', helper: 'Entitaet fuer Battery Popup Zeile 5.' },
+          sensor_popup_bat_5_name: { label: 'Name Battery Popup 5', helper: 'Optionaler benutzerdefinierter Name fuer Battery Popup Zeile 5. Leer lassen, um den Entitaetsnamen zu verwenden.' },
+          sensor_popup_bat_5_color: { label: 'Farbe Battery Popup 5', helper: 'Farbe fuer Battery Popup Zeile 5 Text.' },
+          sensor_popup_bat_5_font_size: { label: 'Schriftgroesse Battery Popup 5 (px)', helper: 'Schriftgroesse fuer Battery Popup Zeile 5. Standard 16' },
+          sensor_popup_bat_6: { label: 'Battery Popup 6', helper: 'Entitaet fuer Battery Popup Zeile 6.' },
+          sensor_popup_bat_6_name: { label: 'Name Battery Popup 6', helper: 'Optionaler benutzerdefinierter Name fuer Battery Popup Zeile 6. Leer lassen, um den Entitaetsnamen zu verwenden.' },
+          sensor_popup_bat_6_color: { label: 'Farbe Battery Popup 6', helper: 'Farbe fuer Battery Popup Zeile 6 Text.' },
+          sensor_popup_bat_6_font_size: { label: 'Schriftgroesse Battery Popup 6 (px)', helper: 'Schriftgroesse fuer Battery Popup Zeile 6. Standard 16' }
         },
         options: {
           languages: [
@@ -3240,7 +3413,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
         },
         fields: {
           card_title: { label: 'Titre de la carte', helper: 'Titre affiché en haut de la carte. Laisser vide pour désactiver.' },
-          background_image: { label: 'Chemin image d arrière-plan', helper: 'Chemin vers l image d arrière-plan (ex. /local/community/lumina-energy-card/lumina_background.jpg).' },
+          background_image: { label: 'Chemin image d arrière-plan', helper: 'Chemin vers l image d arrière-plan (ex. /local/community/lumina-energy-card/lumina_background.png).' },
+          background_image_heat_pump: { label: 'Image d arrière-plan pompe à chaleur', helper: 'Chemin vers l image d arrière-plan pompe à chaleur (ex. /local/community/lumina-energy-card/lumina-energy-card-hp.png).' },
           language: { label: 'Langue', helper: 'Choisissez la langue de l éditeur.' },
           display_unit: { label: 'Unité d affichage', helper: 'Unité utilisée pour formater les valeurs de puissance.' },
           update_interval: { label: 'Intervalle de mise à jour', helper: 'Fréquence de rafraîchissement des mises à jour de la carte (0 désactive le throttling).' },
@@ -3275,6 +3449,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_bat4_power: { label: 'Puissance Batterie 4' },
           sensor_home_load: { label: 'Charge domestique/consommation (Requis)', helper: 'Capteur de consommation totale du foyer.' },
           sensor_home_load_secondary: { label: 'Charge domestique (Inverseur 2)', helper: 'Capteur de charge domestique optionnel pour le second onduleur.' },
+          sensor_heat_pump_consumption: { label: 'Consommation pompe à chaleur', helper: 'Capteur de consommation énergétique de la pompe à chaleur.' },
           sensor_grid_power: { label: 'Puissance réseau', helper: 'Capteur de flux réseau positif/négatif. Spécifiez soit ce capteur soit les capteurs Import/Export réseau.' },
           sensor_grid_import: { label: 'Capteur import réseau', helper: 'Entité optionnelle rapportant l import réseau (valeurs positives).' },
           sensor_grid_export: { label: 'Capteur export réseau', helper: 'Entité optionnelle rapportant l export réseau (valeurs positives).' },
@@ -3333,6 +3508,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
           car2_name_color: { label: 'Couleur nom Véhicule 2', helper: 'Couleur appliquée au libellé du nom du Véhicule 2.' },
           car1_color: { label: 'Couleur Véhicule 1', helper: 'Couleur appliquée à la valeur de puissance du Véhicule 1.' },
           car2_color: { label: 'Couleur Véhicule 2', helper: 'Couleur appliquée à la valeur de puissance du Véhicule 2.' },
+          heat_pump_flow_color: { label: 'Couleur flux pompe à chaleur', helper: 'Couleur appliquée à l animation du flux de la pompe à chaleur.' },
+          heat_pump_text_color: { label: 'Couleur texte pompe à chaleur', helper: 'Couleur appliquée au texte de puissance de la pompe à chaleur.' },
           header_font_size: { label: 'Taille police en-tête (px)', helper: 'Par défaut 16' },
           daily_label_font_size: { label: 'Taille étiquette quotidienne (px)', helper: 'Par défaut 12' },
           daily_value_font_size: { label: 'Taille valeur quotidienne (px)', helper: 'Par défaut 20' },
@@ -3340,6 +3517,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           battery_soc_font_size: { label: 'Taille SOC batterie (px)', helper: 'Par défaut 20' },
           battery_power_font_size: { label: 'Taille puissance batterie (px)', helper: 'Par défaut 16' },
           load_font_size: { label: 'Taille police charge (px)', helper: 'Par défaut 15' },
+          heat_pump_font_size: { label: 'Taille police pompe à chaleur (px)', helper: 'Par défaut 16' },
           grid_font_size: { label: 'Taille police réseau (px)', helper: 'Par défaut 15' },
           car_power_font_size: { label: 'Taille puissance véhicule (px)', helper: 'Par défaut 15' },
           car2_power_font_size: { label: 'Taille puissance Véhicule 2 (px)', helper: 'Par défaut 15' },
@@ -3394,7 +3572,31 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_popup_house_6: { label: 'Popup Maison 6', helper: 'Entité pour la ligne 6 du popup maison.' },
           sensor_popup_house_6_name: { label: 'Nom Popup Maison 6', helper: 'Nom personnalisé optionnel pour la ligne 6 du popup maison. Laisser vide pour utiliser le nom de l\'entité.' },
           sensor_popup_house_6_color: { label: 'Couleur Popup Maison 6', helper: 'Couleur pour le texte de la ligne 6 du popup maison.' },
-          sensor_popup_house_6_font_size: { label: 'Taille police Popup Maison 6 (px)', helper: 'Taille de police pour la ligne 6 du popup maison. Par défaut 16' }
+          sensor_popup_house_6_font_size: { label: 'Taille police Popup Maison 6 (px)', helper: 'Taille de police pour la ligne 6 du popup maison. Par défaut 16' },
+          sensor_popup_bat_1: { label: 'Popup Batterie 1', helper: 'Entité pour la ligne 1 du popup batterie.' },
+          sensor_popup_bat_1_name: { label: 'Nom Popup Batterie 1', helper: 'Nom personnalisé optionnel pour la ligne 1 du popup batterie. Laisser vide pour utiliser le nom de l\'entité.' },
+          sensor_popup_bat_1_color: { label: 'Couleur Popup Batterie 1', helper: 'Couleur pour le texte de la ligne 1 du popup batterie.' },
+          sensor_popup_bat_1_font_size: { label: 'Taille police Popup Batterie 1 (px)', helper: 'Taille de police pour la ligne 1 du popup batterie. Par défaut 16' },
+          sensor_popup_bat_2: { label: 'Popup Batterie 2', helper: 'Entité pour la ligne 2 du popup batterie.' },
+          sensor_popup_bat_2_name: { label: 'Nom Popup Batterie 2', helper: 'Nom personnalisé optionnel pour la ligne 2 du popup batterie. Laisser vide pour utiliser le nom de l\'entité.' },
+          sensor_popup_bat_2_color: { label: 'Couleur Popup Batterie 2', helper: 'Couleur pour le texte de la ligne 2 du popup batterie.' },
+          sensor_popup_bat_2_font_size: { label: 'Taille police Popup Batterie 2 (px)', helper: 'Taille de police pour la ligne 2 du popup batterie. Par défaut 16' },
+          sensor_popup_bat_3: { label: 'Popup Batterie 3', helper: 'Entité pour la ligne 3 du popup batterie.' },
+          sensor_popup_bat_3_name: { label: 'Nom Popup Batterie 3', helper: 'Nom personnalisé optionnel pour la ligne 3 du popup batterie. Laisser vide pour utiliser le nom de l\'entité.' },
+          sensor_popup_bat_3_color: { label: 'Couleur Popup Batterie 3', helper: 'Couleur pour le texte de la ligne 3 du popup batterie.' },
+          sensor_popup_bat_3_font_size: { label: 'Taille police Popup Batterie 3 (px)', helper: 'Taille de police pour la ligne 3 du popup batterie. Par défaut 16' },
+          sensor_popup_bat_4: { label: 'Popup Batterie 4', helper: 'Entité pour la ligne 4 du popup batterie.' },
+          sensor_popup_bat_4_name: { label: 'Nom Popup Batterie 4', helper: 'Nom personnalisé optionnel pour la ligne 4 du popup batterie. Laisser vide pour utiliser le nom de l\'entité.' },
+          sensor_popup_bat_4_color: { label: 'Couleur Popup Batterie 4', helper: 'Couleur pour le texte de la ligne 4 du popup batterie.' },
+          sensor_popup_bat_4_font_size: { label: 'Taille police Popup Batterie 4 (px)', helper: 'Taille de police pour la ligne 4 du popup batterie. Par défaut 16' },
+          sensor_popup_bat_5: { label: 'Popup Batterie 5', helper: 'Entité pour la ligne 5 du popup batterie.' },
+          sensor_popup_bat_5_name: { label: 'Nom Popup Batterie 5', helper: 'Nom personnalisé optionnel pour la ligne 5 du popup batterie. Laisser vide pour utiliser le nom de l\'entité.' },
+          sensor_popup_bat_5_color: { label: 'Couleur Popup Batterie 5', helper: 'Couleur pour le texte de la ligne 5 du popup batterie.' },
+          sensor_popup_bat_5_font_size: { label: 'Taille police Popup Batterie 5 (px)', helper: 'Taille de police pour la ligne 5 du popup batterie. Par défaut 16' },
+          sensor_popup_bat_6: { label: 'Popup Batterie 6', helper: 'Entité pour la ligne 6 du popup batterie.' },
+          sensor_popup_bat_6_name: { label: 'Nom Popup Batterie 6', helper: 'Nom personnalisé optionnel pour la ligne 6 du popup batterie. Laisser vide pour utiliser le nom de l\'entité.' },
+          sensor_popup_bat_6_color: { label: 'Couleur Popup Batterie 6', helper: 'Couleur pour le texte de la ligne 6 du popup batterie.' },
+          sensor_popup_bat_6_font_size: { label: 'Taille police Popup Batterie 6 (px)', helper: 'Taille de police pour la ligne 6 du popup batterie. Par défaut 16' }
         },
         options: {
           languages: [
@@ -3446,7 +3648,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
         },
         fields: {
           card_title: { label: 'Kaart titel', helper: 'Titel weergegeven bovenaan de kaart. Leeg laten om uit te schakelen.' },
-          background_image: { label: 'Achtergrond afbeelding pad', helper: 'Pad naar achtergrond afbeelding (bijv. /local/community/lumina-energy-card/lumina_background.jpg).' },
+          background_image: { label: 'Achtergrond afbeelding pad', helper: 'Pad naar achtergrond afbeelding (bijv. /local/community/lumina-energy-card/lumina_background.png).' },
+          background_image_heat_pump: { label: 'Achtergrond afbeelding warmtepomp', helper: 'Pad naar warmtepomp achtergrond afbeelding (bijv. /local/community/lumina-energy-card/lumina-energy-card-hp.png).' },
           language: { label: 'Taal', helper: 'Kies de taal van de editor.' },
           display_unit: { label: 'Weergave eenheid', helper: 'Eenheid gebruikt om kracht waarden te formatteren.' },
           update_interval: { label: 'Update interval', helper: 'Frequentie van kaart updates verversen (0 schakelt throttling uit).' },
@@ -3481,6 +3684,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_bat4_power: { label: 'Batterij 4 vermogen' },
           sensor_home_load: { label: 'Huisbelasting/verbruik (Vereist)', helper: 'Sensor voor totale huisverbruik.' },
           sensor_home_load_secondary: { label: 'Huisbelasting (Inverter 2)', helper: 'Optionele huisbelasting sensor voor de tweede inverter.' },
+          sensor_heat_pump_consumption: { label: 'Warmtepomp verbruik', helper: 'Sensor voor energieverbruik van de warmtepomp.' },
           sensor_grid_power: { label: 'Grid vermogen', helper: 'Sensor voor grid flow positief/negatief. Specificeer of deze sensor of de Grid Import/Export sensoren.' },
           sensor_grid_import: { label: 'Grid import sensor', helper: 'Optionele entiteit die grid import rapporteert (positieve waarden).' },
           sensor_grid_export: { label: 'Grid export sensor', helper: 'Optionele entiteit die grid export rapporteert (positieve waarden).' },
@@ -3539,6 +3743,8 @@ class LuminaEnergyCardEditor extends HTMLElement {
           car2_name_color: { label: 'Voertuig 2 naam kleur', helper: 'Kleur toegepast op Voertuig 2 naam label.' },
           car1_color: { label: 'Voertuig 1 kleur', helper: 'Kleur toegepast op Voertuig 1 vermogen waarde.' },
           car2_color: { label: 'Voertuig 2 kleur', helper: 'Kleur toegepast op Voertuig 2 vermogen waarde.' },
+          heat_pump_flow_color: { label: 'Warmtepomp stroom kleur', helper: 'Kleur toegepast op de warmtepomp stroom animatie.' },
+          heat_pump_text_color: { label: 'Warmtepomp tekst kleur', helper: 'Kleur toegepast op de warmtepomp vermogen tekst.' },
           header_font_size: { label: 'Header lettergrootte (px)', helper: 'Standaard 16' },
           daily_label_font_size: { label: 'Dagelijks label lettergrootte (px)', helper: 'Standaard 12' },
           daily_value_font_size: { label: 'Dagelijks waarde lettergrootte (px)', helper: 'Standaard 20' },
@@ -3546,6 +3752,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           battery_soc_font_size: { label: 'Batterij SOC lettergrootte (px)', helper: 'Standaard 20' },
           battery_power_font_size: { label: 'Batterij vermogen lettergrootte (px)', helper: 'Standaard 16' },
           load_font_size: { label: 'Belasting lettergrootte (px)', helper: 'Standaard 15' },
+          heat_pump_font_size: { label: 'Warmtepomp lettergrootte (px)', helper: 'Standaard 16' },
           grid_font_size: { label: 'Grid lettergrootte (px)', helper: 'Standaard 15' },
           car_power_font_size: { label: 'Voertuig vermogen lettergrootte (px)', helper: 'Standaard 15' },
           car2_power_font_size: { label: 'Voertuig 2 vermogen lettergrootte (px)', helper: 'Standaard 15' },
@@ -3600,7 +3807,31 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_popup_house_6: { label: 'House Popup 6', helper: 'Entiteit voor house popup lijn 6.' },
           sensor_popup_house_6_name: { label: 'Naam House Popup 6', helper: 'Optionele aangepaste naam voor house popup lijn 6. Laat leeg om entiteit naam te gebruiken.' },
           sensor_popup_house_6_color: { label: 'Kleur House Popup 6', helper: 'Kleur voor house popup lijn 6 tekst.' },
-          sensor_popup_house_6_font_size: { label: 'Lettergrootte House Popup 6 (px)', helper: 'Lettergrootte voor house popup lijn 6. Standaard 16' }
+          sensor_popup_house_6_font_size: { label: 'Lettergrootte House Popup 6 (px)', helper: 'Lettergrootte voor house popup lijn 6. Standaard 16' },
+          sensor_popup_bat_1: { label: 'Battery Popup 1', helper: 'Entiteit voor battery popup lijn 1.' },
+          sensor_popup_bat_1_name: { label: 'Naam Battery Popup 1', helper: 'Optionele aangepaste naam voor battery popup lijn 1. Laat leeg om entiteit naam te gebruiken.' },
+          sensor_popup_bat_1_color: { label: 'Kleur Battery Popup 1', helper: 'Kleur voor battery popup lijn 1 tekst.' },
+          sensor_popup_bat_1_font_size: { label: 'Lettergrootte Battery Popup 1 (px)', helper: 'Lettergrootte voor battery popup lijn 1. Standaard 16' },
+          sensor_popup_bat_2: { label: 'Battery Popup 2', helper: 'Entiteit voor battery popup lijn 2.' },
+          sensor_popup_bat_2_name: { label: 'Naam Battery Popup 2', helper: 'Optionele aangepaste naam voor battery popup lijn 2. Laat leeg om entiteit naam te gebruiken.' },
+          sensor_popup_bat_2_color: { label: 'Kleur Battery Popup 2', helper: 'Kleur voor battery popup lijn 2 tekst.' },
+          sensor_popup_bat_2_font_size: { label: 'Lettergrootte Battery Popup 2 (px)', helper: 'Lettergrootte voor battery popup lijn 2. Standaard 16' },
+          sensor_popup_bat_3: { label: 'Battery Popup 3', helper: 'Entiteit voor battery popup lijn 3.' },
+          sensor_popup_bat_3_name: { label: 'Naam Battery Popup 3', helper: 'Optionele aangepaste naam voor battery popup lijn 3. Laat leeg om entiteit naam te gebruiken.' },
+          sensor_popup_bat_3_color: { label: 'Kleur Battery Popup 3', helper: 'Kleur voor battery popup lijn 3 tekst.' },
+          sensor_popup_bat_3_font_size: { label: 'Lettergrootte Battery Popup 3 (px)', helper: 'Lettergrootte voor battery popup lijn 3. Standaard 16' },
+          sensor_popup_bat_4: { label: 'Battery Popup 4', helper: 'Entiteit voor battery popup lijn 4.' },
+          sensor_popup_bat_4_name: { label: 'Naam Battery Popup 4', helper: 'Optionele aangepaste naam voor battery popup lijn 4. Laat leeg om entiteit naam te gebruiken.' },
+          sensor_popup_bat_4_color: { label: 'Kleur Battery Popup 4', helper: 'Kleur voor battery popup lijn 4 tekst.' },
+          sensor_popup_bat_4_font_size: { label: 'Lettergrootte Battery Popup 4 (px)', helper: 'Lettergrootte voor battery popup lijn 4. Standaard 16' },
+          sensor_popup_bat_5: { label: 'Battery Popup 5', helper: 'Entiteit voor battery popup lijn 5.' },
+          sensor_popup_bat_5_name: { label: 'Naam Battery Popup 5', helper: 'Optionele aangepaste naam voor battery popup lijn 5. Laat leeg om entiteit naam te gebruiken.' },
+          sensor_popup_bat_5_color: { label: 'Kleur Battery Popup 5', helper: 'Kleur voor battery popup lijn 5 tekst.' },
+          sensor_popup_bat_5_font_size: { label: 'Lettergrootte Battery Popup 5 (px)', helper: 'Lettergrootte voor battery popup lijn 5. Standaard 16' },
+          sensor_popup_bat_6: { label: 'Battery Popup 6', helper: 'Entiteit voor battery popup lijn 6.' },
+          sensor_popup_bat_6_name: { label: 'Naam Battery Popup 6', helper: 'Optionele aangepaste naam voor battery popup lijn 6. Laat leeg om entiteit naam te gebruiken.' },
+          sensor_popup_bat_6_color: { label: 'Kleur Battery Popup 6', helper: 'Kleur voor battery popup lijn 6 tekst.' },
+          sensor_popup_bat_6_font_size: { label: 'Lettergrootte Battery Popup 6 (px)', helper: 'Lettergrootte voor battery popup lijn 6. Standaard 16' }
         },
         options: {
           languages: [
@@ -3708,6 +3939,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
       general: define([
         { name: 'card_title', label: fields.card_title.label, helper: fields.card_title.helper, selector: { text: { mode: 'blur' } } },
         { name: 'background_image', label: fields.background_image.label, helper: fields.background_image.helper, selector: { text: { mode: 'blur' } } },
+        { name: 'background_image_heat_pump', label: fields.background_image_heat_pump.label, helper: fields.background_image_heat_pump.helper, selector: { text: { mode: 'blur' } } },
         { name: 'language', label: fields.language.label, helper: fields.language.helper, selector: { select: { options: optionDefs.language } } },
         { name: 'display_unit', label: fields.display_unit.label, helper: fields.display_unit.helper, selector: { select: { options: optionDefs.display_unit } } },
         { name: 'update_interval', label: fields.update_interval.label, helper: fields.update_interval.helper, selector: { number: { min: 0, max: 60, step: 5, mode: 'slider', unit_of_measurement: 's' } } },
@@ -3726,6 +3958,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
         { name: 'sensor_daily', label: fields.sensor_daily.label, helper: fields.sensor_daily.helper, selector: entitySelector },
         { name: 'show_pv_strings', label: fields.show_pv_strings.label, helper: fields.show_pv_strings.helper, selector: { boolean: {} } },
         { name: 'sensor_home_load', label: fields.sensor_home_load.label, helper: fields.sensor_home_load.helper, selector: entitySelector },
+        { name: 'sensor_heat_pump_consumption', label: fields.sensor_heat_pump_consumption.label, helper: fields.sensor_heat_pump_consumption.helper, selector: entitySelector },
         
       ]),
       array2: define([
@@ -3808,11 +4041,13 @@ class LuminaEnergyCardEditor extends HTMLElement {
         { name: 'grid_threshold_critical', label: fields.grid_threshold_critical.label, helper: fields.grid_threshold_critical.helper, selector: buildThresholdSelector(), default: null },
         { name: 'grid_critical_color', label: fields.grid_critical_color.label, helper: fields.grid_critical_color.helper, selector: { color_picker: {} } },
         { name: 'car_pct_color', label: fields.car_pct_color.label, helper: fields.car_pct_color.helper, selector: { color_picker: {} }, default: '#00FFFF' }
-        ,{ name: 'car2_pct_color', label: fields.car2_pct_color.label, helper: fields.car2_pct_color.helper, selector: { color_picker: {} }, default: '' }
+        ,{ name: 'car2_pct_color', label: fields.car2_pct_color.label, helper: fields.car2_pct_color.helper, selector: { color_picker: {} }, default: '#00FFFF' }
         ,{ name: 'car1_name_color', label: fields.car1_name_color.label, helper: fields.car1_name_color.helper, selector: { color_picker: {} }, default: '#FFFFFF' }
         ,{ name: 'car2_name_color', label: fields.car2_name_color.label, helper: fields.car2_name_color.helper, selector: { color_picker: {} }, default: '#FFFFFF' }
         ,{ name: 'car1_color', label: fields.car1_color.label, helper: fields.car1_color.helper, selector: { color_picker: {} }, default: '#FFFFFF' }
         ,{ name: 'car2_color', label: fields.car2_color.label, helper: fields.car2_color.helper, selector: { color_picker: {} }, default: '#FFFFFF' }
+        ,{ name: 'heat_pump_flow_color', label: fields.heat_pump_flow_color.label, helper: fields.heat_pump_flow_color.helper, selector: { color_picker: {} }, default: '#FFA500' }
+        ,{ name: 'heat_pump_text_color', label: fields.heat_pump_text_color.label, helper: fields.heat_pump_text_color.helper, selector: { color_picker: {} }, default: '#FFA500' }
         ,{ name: 'sensor_popup_pv_1_color', label: (fields.sensor_popup_pv_1_color && fields.sensor_popup_pv_1_color.label) || '', helper: (fields.sensor_popup_pv_1_color && fields.sensor_popup_pv_1_color.helper) || '', selector: { color_picker: {} }, default: '#80ffff' }
         ,{ name: 'sensor_popup_pv_2_color', label: (fields.sensor_popup_pv_2_color && fields.sensor_popup_pv_2_color.label) || '', helper: (fields.sensor_popup_pv_2_color && fields.sensor_popup_pv_2_color.helper) || '', selector: { color_picker: {} }, default: '#80ffff' }
         ,{ name: 'sensor_popup_pv_3_color', label: (fields.sensor_popup_pv_3_color && fields.sensor_popup_pv_3_color.label) || '', helper: (fields.sensor_popup_pv_3_color && fields.sensor_popup_pv_3_color.helper) || '', selector: { color_picker: {} }, default: '#80ffff' }
@@ -3840,6 +4075,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
         { name: 'battery_soc_font_size', label: fields.battery_soc_font_size.label, helper: fields.battery_soc_font_size.helper, selector: { text: { mode: 'blur' } } },
         { name: 'battery_power_font_size', label: fields.battery_power_font_size.label, helper: fields.battery_power_font_size.helper, selector: { text: { mode: 'blur' } } },
         { name: 'load_font_size', label: fields.load_font_size.label, helper: fields.load_font_size.helper, selector: { text: { mode: 'blur' } } },
+        { name: 'heat_pump_font_size', label: fields.heat_pump_font_size.label, helper: fields.heat_pump_font_size.helper, selector: { text: { mode: 'blur' } } },
         { name: 'grid_font_size', label: fields.grid_font_size.label, helper: fields.grid_font_size.helper, selector: { text: { mode: 'blur' } } },
         { name: 'car_power_font_size', label: fields.car_power_font_size.label, helper: fields.car_power_font_size.helper, selector: { text: { mode: 'blur' } } },
         { name: 'car2_power_font_size', label: (fields.car2_power_font_size && fields.car2_power_font_size.label) || '', helper: (fields.car2_power_font_size && fields.car2_power_font_size.helper) || '', selector: { text: { mode: 'blur' } } },
@@ -3881,31 +4117,31 @@ class LuminaEnergyCardEditor extends HTMLElement {
         { name: 'sensor_popup_pv_6_name', label: (fields.sensor_popup_pv_6_name && fields.sensor_popup_pv_6_name.label) || '', helper: (fields.sensor_popup_pv_6_name && fields.sensor_popup_pv_6_name.helper) || '', selector: { text: {} } }
       ]),
       batteryPopup: define([
-        { name: 'sensor_popup_bat_1', label: (fields.sensor_popup_bat_1 && fields.sensor_popup_bat_1.label) || '', helper: (fields.sensor_popup_bat_1 && fields.sensor_popup_bat_1.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_bat_1', label: (fields.sensor_popup_bat_1 && fields.sensor_popup_bat_1.label) || '', helper: (fields.sensor_popup_bat_1 && fields.sensor_popup_bat_1.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_bat_1_name', label: (fields.sensor_popup_bat_1_name && fields.sensor_popup_bat_1_name.label) || '', helper: (fields.sensor_popup_bat_1_name && fields.sensor_popup_bat_1_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_bat_2', label: (fields.sensor_popup_bat_2 && fields.sensor_popup_bat_2.label) || '', helper: (fields.sensor_popup_bat_2 && fields.sensor_popup_bat_2.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_bat_2', label: (fields.sensor_popup_bat_2 && fields.sensor_popup_bat_2.label) || '', helper: (fields.sensor_popup_bat_2 && fields.sensor_popup_bat_2.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_bat_2_name', label: (fields.sensor_popup_bat_2_name && fields.sensor_popup_bat_2_name.label) || '', helper: (fields.sensor_popup_bat_2_name && fields.sensor_popup_bat_2_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_bat_3', label: (fields.sensor_popup_bat_3 && fields.sensor_popup_bat_3.label) || '', helper: (fields.sensor_popup_bat_3 && fields.sensor_popup_bat_3.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_bat_3', label: (fields.sensor_popup_bat_3 && fields.sensor_popup_bat_3.label) || '', helper: (fields.sensor_popup_bat_3 && fields.sensor_popup_bat_3.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_bat_3_name', label: (fields.sensor_popup_bat_3_name && fields.sensor_popup_bat_3_name.label) || '', helper: (fields.sensor_popup_bat_3_name && fields.sensor_popup_bat_3_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_bat_4', label: (fields.sensor_popup_bat_4 && fields.sensor_popup_bat_4.label) || '', helper: (fields.sensor_popup_bat_4 && fields.sensor_popup_bat_4.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_bat_4', label: (fields.sensor_popup_bat_4 && fields.sensor_popup_bat_4.label) || '', helper: (fields.sensor_popup_bat_4 && fields.sensor_popup_bat_4.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_bat_4_name', label: (fields.sensor_popup_bat_4_name && fields.sensor_popup_bat_4_name.label) || '', helper: (fields.sensor_popup_bat_4_name && fields.sensor_popup_bat_4_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_bat_5', label: (fields.sensor_popup_bat_5 && fields.sensor_popup_bat_5.label) || '', helper: (fields.sensor_popup_bat_5 && fields.sensor_popup_bat_5.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_bat_5', label: (fields.sensor_popup_bat_5 && fields.sensor_popup_bat_5.label) || '', helper: (fields.sensor_popup_bat_5 && fields.sensor_popup_bat_5.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_bat_5_name', label: (fields.sensor_popup_bat_5_name && fields.sensor_popup_bat_5_name.label) || '', helper: (fields.sensor_popup_bat_5_name && fields.sensor_popup_bat_5_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_bat_6', label: (fields.sensor_popup_bat_6 && fields.sensor_popup_bat_6.label) || '', helper: (fields.sensor_popup_bat_6 && fields.sensor_popup_bat_6.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_bat_6', label: (fields.sensor_popup_bat_6 && fields.sensor_popup_bat_6.label) || '', helper: (fields.sensor_popup_bat_6 && fields.sensor_popup_bat_6.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_bat_6_name', label: (fields.sensor_popup_bat_6_name && fields.sensor_popup_bat_6_name.label) || '', helper: (fields.sensor_popup_bat_6_name && fields.sensor_popup_bat_6_name.helper) || '', selector: { text: {} } }
       ]),
       housePopup: define([
-        { name: 'sensor_popup_house_1', label: (fields.sensor_popup_house_1 && fields.sensor_popup_house_1.label) || '', helper: (fields.sensor_popup_house_1 && fields.sensor_popup_house_1.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_house_1', label: (fields.sensor_popup_house_1 && fields.sensor_popup_house_1.label) || '', helper: (fields.sensor_popup_house_1 && fields.sensor_popup_house_1.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_house_1_name', label: (fields.sensor_popup_house_1_name && fields.sensor_popup_house_1_name.label) || '', helper: (fields.sensor_popup_house_1_name && fields.sensor_popup_house_1_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_house_2', label: (fields.sensor_popup_house_2 && fields.sensor_popup_house_2.label) || '', helper: (fields.sensor_popup_house_2 && fields.sensor_popup_house_2.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_house_2', label: (fields.sensor_popup_house_2 && fields.sensor_popup_house_2.label) || '', helper: (fields.sensor_popup_house_2 && fields.sensor_popup_house_2.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_house_2_name', label: (fields.sensor_popup_house_2_name && fields.sensor_popup_house_2_name.label) || '', helper: (fields.sensor_popup_house_2_name && fields.sensor_popup_house_2_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_house_3', label: (fields.sensor_popup_house_3 && fields.sensor_popup_house_3.label) || '', helper: (fields.sensor_popup_house_3 && fields.sensor_popup_house_3.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_house_3', label: (fields.sensor_popup_house_3 && fields.sensor_popup_house_3.label) || '', helper: (fields.sensor_popup_house_3 && fields.sensor_popup_house_3.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_house_3_name', label: (fields.sensor_popup_house_3_name && fields.sensor_popup_house_3_name.label) || '', helper: (fields.sensor_popup_house_3_name && fields.sensor_popup_house_3_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_house_4', label: (fields.sensor_popup_house_4 && fields.sensor_popup_house_4.label) || '', helper: (fields.sensor_popup_house_4 && fields.sensor_popup_house_4.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_house_4', label: (fields.sensor_popup_house_4 && fields.sensor_popup_house_4.label) || '', helper: (fields.sensor_popup_house_4 && fields.sensor_popup_house_4.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_house_4_name', label: (fields.sensor_popup_house_4_name && fields.sensor_popup_house_4_name.label) || '', helper: (fields.sensor_popup_house_4_name && fields.sensor_popup_house_4_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_house_5', label: (fields.sensor_popup_house_5 && fields.sensor_popup_house_5.label) || '', helper: (fields.sensor_popup_house_5 && fields.sensor_popup_house_5.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_house_5', label: (fields.sensor_popup_house_5 && fields.sensor_popup_house_5.label) || '', helper: (fields.sensor_popup_house_5 && fields.sensor_popup_house_5.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_house_5_name', label: (fields.sensor_popup_house_5_name && fields.sensor_popup_house_5_name.label) || '', helper: (fields.sensor_popup_house_5_name && fields.sensor_popup_house_5_name.helper) || '', selector: { text: {} } },
-        { name: 'sensor_popup_house_6', label: (fields.sensor_popup_house_6 && fields.sensor_popup_house_6.label) || '', helper: (fields.sensor_popup_house_6 && fields.sensor_popup_house_6.helper) || '', selector: { entity: {} } },
+        { name: 'sensor_popup_house_6', label: (fields.sensor_popup_house_6 && fields.sensor_popup_house_6.label) || '', helper: (fields.sensor_popup_house_6 && fields.sensor_popup_house_6.helper) || '', selector: entitySelector },
         { name: 'sensor_popup_house_6_name', label: (fields.sensor_popup_house_6_name && fields.sensor_popup_house_6_name.label) || '', helper: (fields.sensor_popup_house_6_name && fields.sensor_popup_house_6_name.helper) || '', selector: { text: {} } }
       ])
     };
@@ -3943,6 +4179,10 @@ class LuminaEnergyCardEditor extends HTMLElement {
     this.render();
   }
 
+  get value() {
+    return this._config;
+  }
+
   set hass(hass) {
     this._hass = hass;
     if (!this._config || this._rendered) {
@@ -3961,21 +4201,19 @@ class LuminaEnergyCardEditor extends HTMLElement {
   }
 
   _debouncedConfigChanged(newConfig, immediate = false) {
+    this._config = newConfig;
+    if (this._configChangeTimer) {
+      clearTimeout(this._configChangeTimer);
+      this._configChangeTimer = null;
+    }
     if (immediate) {
-      if (this._configChangeTimer) {
-        clearTimeout(this._configChangeTimer);
-        this._configChangeTimer = null;
-      }
       this.configChanged(newConfig);
       return;
     }
-    if (this._configChangeTimer) {
-      clearTimeout(this._configChangeTimer);
-    }
     const delay = 800;
     this._configChangeTimer = setTimeout(() => {
-      this._configChangeTimer = null;
       this.configChanged(this._config);
+      this._configChangeTimer = null;
     }, delay);
   }
 
