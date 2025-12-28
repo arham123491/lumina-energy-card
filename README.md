@@ -153,10 +153,12 @@ background_image: /local/community/lumina-energy-card/lumina_background.png
 | `pv_secondary_color` | string | `#80ffff` | PV 2 flow animation colour. |
 | `pv_tot_color` | string | `#00FFFF` | PV TOTAL text/line colour. |
 | `load_flow_color` | string | `#0080ff` | Home load flow animation colour. |
+| `load_text_color` | string | `#FFFFFF` | Home load text colour when thresholds are inactive. |
 | `load_threshold_warning` | number | — | Load warning threshold (W or kW based on the display unit). |
 | `load_warning_color` | string | `#ff8000` | Load warning colour. |
 | `load_threshold_critical` | number | — | Load critical threshold (W or kW based on the display unit). |
 | `load_critical_color` | string | `#ff0000` | Load critical colour. |
+| `battery_soc_color` | string | `#FFFFFF` | Battery SOC percentage text colour. |
 | `battery_charge_color` | string | `#00FFFF` | Battery charge flow colour. |
 | `battery_discharge_color` | string | `#FFFFFF` | Battery discharge flow colour. |
 | `grid_import_color` | string | `#FF3333` | Grid import flow colour. |
@@ -274,7 +276,7 @@ Note:
 
 - Abilitando `show_pv_strings` verranno mostrate le linee per stringa per gli array attivi; quando Array 2 è presente la scheda renderizzerà PV TOT / Totale Array1 / Totale Array2 e la sezione HOUSE mostrerà `HOUSE TOT / INV 1 / INV 2` come linee separate.
 
-### Zusätzliche Array-2-Optionen (DE)
+### Zusätzliche Array-2-Optionen (DE, Kurzfassung)
 
 `sensor_pv_total_secondary` | entity | — | Optionaler Gesamtwertsensor für den zweiten Wechselrichter (als PV2 behandelt). Wenn vorhanden wird er in PV TOT einbezogen und als sekundärer PV-Fluss verwendet.
 
@@ -427,10 +429,12 @@ background_image: /local/community/lumina-energy-card/lumina_background.png
 | `pv_secondary_color` | stringa | `#80ffff` | Colore flusso FV secondario. |
 | `pv_tot_color` | stringa | `#00FFFF` | Colore della riga/testo PV TOT. |
 | `load_flow_color` | stringa | `#0080ff` | Colore del flusso carico casa. |
+| `load_text_color` | stringa | `#FFFFFF` | Colore del testo del carico quando le soglie non sono attive. |
 | `load_threshold_warning` | numero | — | Soglia di avviso per il carico (W o kW). |
 | `load_warning_color` | stringa | `#ff8000` | Colore di avviso per il carico. |
 | `load_threshold_critical` | numero | — | Soglia critica per il carico (W o kW). |
 | `load_critical_color` | stringa | `#ff0000` | Colore critico per il carico. |
+| `battery_soc_color` | stringa | `#FFFFFF` | Colore del testo percentuale SOC della batteria. |
 | `battery_charge_color` | stringa | `#00FFFF` | Colore del flusso di carica batteria. |
 | `battery_discharge_color` | stringa | `#FFFFFF` | Colore del flusso di scarica batteria. |
 | `grid_import_color` | stringa | `#FF3333` | Colore del flusso di import rete. |
@@ -660,10 +664,12 @@ background_image: /local/community/lumina-energy-card/lumina_background.png
 | `pv_secondary_color` | chaîne | `#80ffff` | Couleur du flux PV secondaire. |
 | `pv_tot_color` | chaîne | `#00FFFF` | Couleur de la ligne/texte PV TOTAL. |
 | `load_flow_color` | chaîne | `#0080ff` | Couleur du flux de charge domestique. |
+| `load_text_color` | chaîne | `#FFFFFF` | Couleur du texte de charge lorsque aucun seuil n'est actif. |
 | `load_threshold_warning` | nombre | — | Seuil d'avertissement pour la charge (W ou kW). |
 | `load_warning_color` | chaîne | `#ff8000` | Couleur d'avertissement pour la charge. |
 | `load_threshold_critical` | nombre | — | Seuil critique pour la charge (W ou kW). |
 | `load_critical_color` | chaîne | `#ff0000` | Couleur critique pour la charge. |
+| `battery_soc_color` | chaîne | `#FFFFFF` | Couleur du texte du pourcentage SOC batterie. |
 | `battery_charge_color` | chaîne | `#00FFFF` | Couleur du flux de charge batterie. |
 | `battery_discharge_color` | chaîne | `#FFFFFF` | Couleur du flux de décharge batterie. |
 | `grid_import_color` | chaîne | `#FF3333` | Couleur du flux d'import réseau. |
@@ -939,10 +945,12 @@ background_image: /local/community/lumina-energy-card/lumina_background.png
 | `pv_secondary_color` | Zeichenkette | `#80ffff` | Animationsfarbe des sekundären PV-Flusses. |
 | `pv_tot_color` | Zeichenkette | `#00FFFF` | Farbe für PV TOTAL. |
 | `load_flow_color` | Zeichenkette | `#0080ff` | Animationsfarbe des Hausverbrauchs. |
+| `load_text_color` | Zeichenkette | `#FFFFFF` | Farbe für den Hausverbrauchstext, wenn keine Schwellen aktiv sind. |
 | `load_threshold_warning` | Zahl | — | Warnschwelle für den Verbrauch (W oder kW). |
 | `load_warning_color` | Zeichenkette | `#ff8000` | Warnfarbe für den Verbrauch. |
 | `load_threshold_critical` | Zahl | — | Kritische Schwelle für den Verbrauch (W oder kW). |
 | `load_critical_color` | Zeichenkette | `#ff0000` | Kritische Farbe für den Verbrauch. |
+| `battery_soc_color` | Zeichenkette | `#FFFFFF` | Farbe für den Batterie-SOC-Prozenttext. |
 | `battery_charge_color` | Zeichenkette | `#00FFFF` | Farbe des Batterieladeflusses. |
 | `battery_discharge_color` | Zeichenkette | `#FFFFFF` | Farbe des Batteriespeiseflusses. |
 | `grid_import_color` | Zeichenkette | `#FF3333` | Farbe des Netzimports. |
@@ -1163,10 +1171,12 @@ background_image: /local/community/lumina-energy-card/lumina_background.png
 | `pv_secondary_color` | Tekst | `#80ffff` | Secundaire PV-animatie. |
 | `pv_tot_color` | Tekst | `#00FFFF` | PV TOTAL-label. |
 | `load_flow_color` | Tekst | `#0080ff` | Animatie huislast. |
+| `load_text_color` | Tekst | `#FFFFFF` | Tekstkleur voor huisverbruik wanneer er geen drempel actief is. |
 | `load_threshold_warning` | Nummer | — | Waarschuwingsdrempel (W/kW). |
 | `load_warning_color` | Tekst | `#ff8000` | Waarschuwing kleur. |
 | `load_threshold_critical` | Nummer | — | Kritieke drempel. |
 | `load_critical_color` | Tekst | `#ff0000` | Kritieke kleur. |
+| `battery_soc_color` | Tekst | `#FFFFFF` | Kleur voor de batterij-SOC-tekst. |
 | `battery_charge_color` | Tekst | `#00FFFF` | Kleur laadstroom. |
 | `battery_discharge_color` | Tekst | `#FFFFFF` | Kleur ontlaadstroom. |
 | `grid_import_color` | Tekst | `#FF3333` | Kleur netimport. |

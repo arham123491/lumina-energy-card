@@ -137,10 +137,12 @@ background_image: /local/community/lumina-energy-card/lumina_background.png
 | `pv_secondary_color` | chaîne | `#80ffff` | Couleur du flux PV secondaire. |
 | `pv_tot_color` | chaîne | `#00FFFF` | Couleur de la ligne/texte PV TOTAL. |
 | `load_flow_color` | chaîne | `#0080ff` | Couleur du flux de charge domestique. |
+| `load_text_color` | chaîne | `#FFFFFF` | Couleur du texte de charge lorsque aucun seuil n'est actif. |
 | `load_threshold_warning` | nombre | — | Seuil d'avertissement pour la charge (W ou kW). |
 | `load_warning_color` | chaîne | `#ff8000` | Couleur d'avertissement pour la charge. |
 | `load_threshold_critical` | nombre | — | Seuil critique pour la charge (W ou kW). |
 | `load_critical_color` | chaîne | `#ff0000` | Couleur critique pour la charge. |
+| `battery_soc_color` | chaîne | `#FFFFFF` | Couleur du texte du pourcentage SOC batterie. |
 | `battery_charge_color` | chaîne | `#00FFFF` | Couleur du flux de charge batterie. |
 | `battery_discharge_color` | chaîne | `#FFFFFF` | Couleur du flux de décharge batterie. |
 | `grid_import_color` | chaîne | `#FF3333` | Couleur du flux d'import réseau. |

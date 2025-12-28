@@ -236,6 +236,7 @@ class LuminaEnergyCard extends HTMLElement {
       pv_string5_color: '#80ffff',
       pv_string6_color: '#80ffff',
       load_flow_color: '#0080ff',
+      load_text_color: '#FFFFFF',
       house_total_color: '#00FFFF',
       inv1_color: '#0080ff',
       inv2_color: '#80ffff',
@@ -243,6 +244,7 @@ class LuminaEnergyCard extends HTMLElement {
       load_warning_color: '#ff8000',
       load_threshold_critical: null,
       load_critical_color: '#ff0000',
+      battery_soc_color: '#FFFFFF',
       battery_charge_color: '#00FFFF',
       battery_discharge_color: '#FFFFFF',
       grid_import_color: '#FF3333',
@@ -1304,6 +1306,8 @@ class LuminaEnergyCard extends HTMLElement {
       return resolveColor(config[key], pvPrimaryColor);
     };
     const loadFlowColor = resolveColor(config.load_flow_color, C_CYAN);
+    const loadTextBaseColor = resolveColor(config.load_text_color, C_WHITE);
+    const batterySocTextColor = resolveColor(config.battery_soc_color, C_WHITE);
     const batteryChargeColor = resolveColor(config.battery_charge_color, C_CYAN);
     const batteryDischargeColor = resolveColor(config.battery_discharge_color, C_WHITE);
     const gridImportColor = resolveColor(config.grid_import_color, C_RED);
@@ -1337,7 +1341,7 @@ class LuminaEnergyCard extends HTMLElement {
       if (loadWarningColor && loadWarningThreshold !== null && loadMagnitude >= loadWarningThreshold) {
         return loadWarningColor;
       }
-      return C_WHITE;
+      return loadTextBaseColor;
     })();
     const invertBattery = Boolean(config.invert_battery);
     const isBatPositive = total_bat_w >= 0;
@@ -1533,7 +1537,7 @@ class LuminaEnergyCard extends HTMLElement {
       daily: { label: label_daily, value: `${total_daily_kwh} kWh`, labelSize: daily_label_font_size, valueSize: daily_value_font_size },
       pv: { fontSize: pv_font_size, lines: pvLines },
       battery: { levelOffset: BATTERY_GEOMETRY.MAX_HEIGHT - current_h, fill: liquid_fill },
-      batterySoc: { text: `${Math.floor(avg_soc)}%`, fontSize: battery_soc_font_size, fill: C_WHITE },
+      batterySoc: { text: `${Math.floor(avg_soc)}%`, fontSize: battery_soc_font_size, fill: batterySocTextColor },
       batteryPower: { text: this.formatPower(Math.abs(total_bat_w), use_kw), fontSize: battery_power_font_size, fill: bat_col },
       load: (loadLines && loadLines.length) ? { lines: loadLines, y: loadY, fontSize: load_font_size, fill: effectiveLoadTextColor } : { text: this.formatPower(loadValue, use_kw), fontSize: load_font_size, fill: effectiveLoadTextColor },
       grid: { text: gridText, fontSize: grid_font_size, fill: effectiveGridColor, lines: gridLines },
@@ -2896,6 +2900,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           pv_string5_color: { label: 'PV String 5 Color', helper: 'Override for S5 in the PV list. Leave blank to inherit the PV total color.' },
           pv_string6_color: { label: 'PV String 6 Color', helper: 'Override for S6 in the PV list. Leave blank to inherit the PV total color.' },
           load_flow_color: { label: 'Load Flow Color', helper: 'Colour applied to the home load animation line.' },
+          load_text_color: { label: 'Load Text Color', helper: 'Colour applied to the home load text when thresholds are inactive.' },
           house_total_color: { label: 'House Total Color', helper: 'Colour applied to the HOUSE TOT text/flow.' },
           inv1_color: { label: 'INV 1 Color', helper: 'Colour applied to the INV 1 text/flow.' },
           inv2_color: { label: 'INV 2 Color', helper: 'Colour applied to the INV 2 text/flow.' },
@@ -2903,6 +2908,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           load_warning_color: { label: 'Load Warning Color', helper: 'Hex or CSS color applied at the load warning threshold.' },
           load_threshold_critical: { label: 'Load Critical Threshold', helper: 'Change load color when magnitude equals or exceeds this value. Uses the selected display unit.' },
           load_critical_color: { label: 'Load Critical Color', helper: 'Hex or CSS color applied at the load critical threshold.' },
+          battery_soc_color: { label: 'Battery SOC Color', helper: 'Hex color applied to the battery SOC percentage text.' },
           battery_charge_color: { label: 'Battery Charge Flow Color', helper: 'Colour used when energy is flowing into the battery.' },
           battery_discharge_color: { label: 'Battery Discharge Flow Color', helper: 'Colour used when energy is flowing from the battery.' },
           grid_import_color: { label: 'Grid Import Flow Color', helper: 'Base colour before thresholds when importing from the grid.' },
@@ -3131,6 +3137,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           pv_string5_color: { label: 'Colore stringa FV 5', helper: 'Sovrascrive il colore di S5. Lascia vuoto per usare il colore totale FV.' },
           pv_string6_color: { label: 'Colore stringa FV 6', helper: 'Sovrascrive il colore di S6. Lascia vuoto per usare il colore totale FV.' },
           load_flow_color: { label: 'Colore flusso carico', helper: 'Colore applicato all animazione del carico della casa.' },
+          load_text_color: { label: 'Colore testo carico', helper: 'Colore applicato al testo del carico di casa quando le soglie non sono attive.' },
           house_total_color: { label: 'Colore HOUSE TOT', helper: 'Colore applicato al testo/flusso HOUSE TOT.' },
           inv1_color: { label: 'Colore INV 1', helper: 'Colore applicato al testo/flusso INV 1.' },
           inv2_color: { label: 'Colore INV 2', helper: 'Colore applicato al testo/flusso INV 2.' },
@@ -3138,6 +3145,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           load_warning_color: { label: 'Colore avviso carico', helper: 'Colore applicato alla soglia di avviso del carico.' },
           load_threshold_critical: { label: 'Soglia critica carico', helper: 'Cambia colore quando il carico raggiunge questa soglia critica. Usa l unita di visualizzazione selezionata.' },
           load_critical_color: { label: 'Colore critico carico', helper: 'Colore applicato alla soglia critica del carico.' },
+          battery_soc_color: { label: 'Colore SOC batteria', helper: 'Colore applicato al testo percentuale SOC della batteria.' },
           battery_charge_color: { label: 'Colore flusso carica batteria', helper: 'Colore quando l energia entra nella batteria.' },
           battery_discharge_color: { label: 'Colore flusso scarica batteria', helper: 'Colore quando l energia esce dalla batteria.' },
           grid_import_color: { label: 'Colore import da rete', helper: 'Colore base (prima delle soglie) quando si importa dalla rete.' },
@@ -3366,6 +3374,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           pv_string5_color: { label: 'PV String 5 Farbe', helper: 'Ueberschreibt die Farbe fuer S5. Leer lassen um die PV-Gesamtfarbe zu nutzen.' },
           pv_string6_color: { label: 'PV String 6 Farbe', helper: 'Ueberschreibt die Farbe fuer S6. Leer lassen um die PV-Gesamtfarbe zu nutzen.' },
           load_flow_color: { label: 'Lastflussfarbe', helper: 'Farbe fuer die Hausverbrauch-Animationslinie.' },
+          load_text_color: { label: 'Last Textfarbe', helper: 'Farbe fuer den Hausverbrauchstext, wenn keine Schwellen aktiv sind.' },
           house_total_color: { label: 'House Total Farbe', helper: 'Farbe fuer HOUSE TOT Text/Fluss.' },
           inv1_color: { label: 'INV 1 Farbe', helper: 'Farbe fuer INV 1 Text/Fluss.' },
           inv2_color: { label: 'INV 2 Farbe', helper: 'Farbe fuer INV 2 Text/Fluss.' },
@@ -3373,6 +3382,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           load_warning_color: { label: 'Last Warnfarbe', helper: 'Farbe bei Erreichen der Warnschwelle des Hausverbrauchs.' },
           load_threshold_critical: { label: 'Last Kritische Schwelle', helper: 'Farbe wechseln, wenn der Verbrauch diese kritische Magnitude erreicht. Verwendet die ausgewaehlte Anzeigeeinheit.' },
           load_critical_color: { label: 'Last Kritische Farbe', helper: 'Farbe bei Erreichen der kritischen Hausverbrauchsschwelle.' },
+          battery_soc_color: { label: 'Batterie SOC Farbe', helper: 'Farbe für den Batterie-SOC-Prozenttext.' },
           battery_charge_color: { label: 'Batterie Ladeflussfarbe', helper: 'Farbe wenn Energie in die Batterie fliesst.' },
           battery_discharge_color: { label: 'Batterie Entladeflussfarbe', helper: 'Farbe wenn Energie aus der Batterie fliesst.' },
           grid_import_color: { label: 'Netzimport Flussfarbe', helper: 'Basisfarbe (vor Schwellwerten) beim Netzimport.' },
@@ -3602,6 +3612,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           pv_string5_color: { label: 'Couleur Chaîne PV 5', helper: 'Remplace la couleur pour S5 dans la liste PV. Laisser vide pour hériter de la couleur PV totale.' },
           pv_string6_color: { label: 'Couleur Chaîne PV 6', helper: 'Remplace la couleur pour S6 dans la liste PV. Laisser vide pour hériter de la couleur PV totale.' },
           load_flow_color: { label: 'Couleur flux charge', helper: 'Couleur appliquée à la ligne d animation de la charge domestique.' },
+          load_text_color: { label: 'Couleur texte charge', helper: 'Couleur appliquée au texte de charge lorsque aucun seuil n est actif.' },
           house_total_color: { label: 'Couleur HOUSE TOT', helper: 'Couleur appliquée au texte/flux HOUSE TOT.' },
           inv1_color: { label: 'Couleur INV 1', helper: 'Couleur appliquée au texte/flux INV 1.' },
           inv2_color: { label: 'Couleur INV 2', helper: 'Couleur appliquée au texte/flux INV 2.' },
@@ -3609,6 +3620,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           load_warning_color: { label: 'Couleur avertissement charge', helper: 'Couleur hex ou CSS appliquée au seuil d avertissement de charge.' },
           load_threshold_critical: { label: 'Seuil critique charge', helper: 'Changer la couleur lorsque la magnitude atteint ou dépasse cette valeur. Utilise l unité d affichage sélectionnée.' },
           load_critical_color: { label: 'Couleur critique charge', helper: 'Couleur hex ou CSS appliquée au seuil critique de charge.' },
+          battery_soc_color: { label: 'Couleur SOC batterie', helper: 'Couleur appliquée au texte du pourcentage SOC batterie.' },
           battery_charge_color: { label: 'Couleur flux charge batterie', helper: 'Couleur utilisée lorsque l énergie entre dans la batterie.' },
           battery_discharge_color: { label: 'Couleur flux décharge batterie', helper: 'Couleur utilisée lorsque l énergie sort de la batterie.' },
           battery_fill_high_color: { label: 'Couleur remplissage batterie (normale)', helper: 'Couleur du liquide lorsque le SOC de la batterie est au-dessus du seuil bas.' },
@@ -3839,6 +3851,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           pv_string5_color: { label: 'PV String 5 kleur', helper: 'Vervang kleur voor S5 in PV lijst. Leeg laten om te erven van totale PV kleur.' },
           pv_string6_color: { label: 'PV String 6 kleur', helper: 'Vervang kleur voor S6 in PV lijst. Leeg laten om te erven van totale PV kleur.' },
           load_flow_color: { label: 'Belasting flow kleur', helper: 'Kleur toegepast op de huisbelasting animatie lijn.' },
+          load_text_color: { label: 'Belasting tekstkleur', helper: 'Kleur toegepast op de tekst van het huisverbruik wanneer geen drempel actief is.' },
           house_total_color: { label: 'HOUSE TOT kleur', helper: 'Kleur toegepast op HOUSE TOT tekst/flow.' },
           inv1_color: { label: 'INV 1 kleur', helper: 'Kleur toegepast op INV 1 tekst/flow.' },
           inv2_color: { label: 'INV 2 kleur', helper: 'Kleur toegepast op INV 2 tekst/flow.' },
@@ -3846,6 +3859,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           load_warning_color: { label: 'Belasting waarschuwingskleur', helper: 'Hex of CSS kleur toegepast op belasting waarschuwingsdrempel.' },
           load_threshold_critical: { label: 'Belasting kritieke drempel', helper: 'Verander kleur wanneer magnitude deze waarde bereikt of overschrijdt. Gebruikt geselecteerde weergave eenheid.' },
           load_critical_color: { label: 'Belasting kritieke kleur', helper: 'Hex of CSS kleur toegepast op kritieke belasting drempel.' },
+          battery_soc_color: { label: 'Batterij SOC kleur', helper: 'Kleur toegepast op de batterij-SOC-percentagetekst.' },
           battery_charge_color: { label: 'Batterij laad flow kleur', helper: 'Kleur gebruikt wanneer energie de batterij ingaat.' },
           battery_discharge_color: { label: 'Batterij ontlaad flow kleur', helper: 'Kleur gebruikt wanneer energie de batterij verlaat.' },
           battery_fill_high_color: { label: 'Batterij vulling kleur (normaal)', helper: 'Kleur van vloeistof wanneer batterij SOC boven lage drempel is.' },
@@ -4165,6 +4179,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
         { name: 'pv_string5_color', label: fields.pv_string5_color.label, helper: fields.pv_string5_color.helper, selector: { color_picker: {} } },
         { name: 'pv_string6_color', label: fields.pv_string6_color.label, helper: fields.pv_string6_color.helper, selector: { color_picker: {} } },
         { name: 'load_flow_color', label: fields.load_flow_color.label, helper: fields.load_flow_color.helper, selector: { color_picker: {} } },
+        { name: 'load_text_color', label: fields.load_text_color.label, helper: fields.load_text_color.helper, selector: { color_picker: {} }, default: '#FFFFFF' },
         { name: 'house_total_color', label: fields.house_total_color.label, helper: fields.house_total_color.helper, selector: { color_picker: {} }, default: '#00FFFF' },
         { name: 'inv1_color', label: fields.inv1_color.label, helper: fields.inv1_color.helper, selector: { color_picker: {} }, default: '#0080ff' },
         { name: 'inv2_color', label: fields.inv2_color.label, helper: fields.inv2_color.helper, selector: { color_picker: {} }, default: '#80ffff' },
@@ -4172,6 +4187,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
         { name: 'load_warning_color', label: fields.load_warning_color.label, helper: fields.load_warning_color.helper, selector: { color_picker: {} } },
         { name: 'load_threshold_critical', label: fields.load_threshold_critical.label, helper: fields.load_threshold_critical.helper, selector: buildThresholdSelector(), default: null },
         { name: 'load_critical_color', label: fields.load_critical_color.label, helper: fields.load_critical_color.helper, selector: { color_picker: {} } },
+        { name: 'battery_soc_color', label: fields.battery_soc_color.label, helper: fields.battery_soc_color.helper, selector: { color_picker: {} } },
         { name: 'battery_charge_color', label: fields.battery_charge_color.label, helper: fields.battery_charge_color.helper, selector: { color_picker: {} } },
         { name: 'battery_discharge_color', label: fields.battery_discharge_color.label, helper: fields.battery_discharge_color.helper, selector: { color_picker: {} } },
         { name: 'grid_import_color', label: fields.grid_import_color.label, helper: fields.grid_import_color.helper, selector: { color_picker: {} } },
