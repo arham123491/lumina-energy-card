@@ -30,11 +30,11 @@ const FLOW_PATHS = {
   bat: 'M 423 310 L 325 350',
   load: 'M 471 303 L 550 273 L 380 220',
   grid: 'M 470 280 L 575 240 L 575 223',
-  grid_house: 'M 475 205 L 575 245 L 575 223',
-  house_inv: 'M 475 210 L 575 250 L 470 280',
+  grid_house: 'M 475 205 L 575 238 L 575 223',
+  house_inv: 'M 470 210 L 575 243 L 480 285',
   car1: 'M 475 329 L 490 335 L 600 285',
   car2: 'M 475 341 L 490 347 L 600 310',
-  heatPump: 'M 405 230 L 430 250 L 395 260 L 375 245'
+  heatPump: 'M 401 238 L 452 255 L 418 266 L 375 250'
 };
 
 const SVG_DIMENSIONS = { width: 800, height: 450 };
@@ -144,6 +144,9 @@ class LuminaEnergyCard extends HTMLElement {
     this._defaults = (typeof LuminaEnergyCard.getStubConfig === 'function')
       ? { ...LuminaEnergyCard.getStubConfig() }
       : {};
+    this._debugCoordsActive = false;
+    this._handleDebugPointerMove = this._handleDebugPointerMove.bind(this);
+    this._handleDebugPointerLeave = this._handleDebugPointerLeave.bind(this);
   }
 
   setConfig(config) {
@@ -1539,7 +1542,7 @@ class LuminaEnergyCard extends HTMLElement {
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         :host { display: block; aspect-ratio: 16/9; }
-        ha-card { height: 100%; overflow: hidden; background: transparent; border: none; box-shadow: none; }
+        ha-card { position: relative; height: 100%; overflow: hidden; background: transparent; border: none; box-shadow: none; }
         .track-path { stroke: #555555; stroke-width: 2px; fill: none; opacity: 0; }
         .flow-path { stroke-linecap: round; stroke-width: 3px; fill: none; opacity: 0; transition: opacity 0.35s ease; filter: none; }
         .flow-arrow { pointer-events: none; opacity: 0; transition: opacity 0.35s ease; }
@@ -1574,6 +1577,22 @@ class LuminaEnergyCard extends HTMLElement {
         .array2-visual-header::after,
         .array2-visual-header::marker,
         .array2-visual-header::-webkit-details-marker { content: '' !important; display: none !important; }
+        .debug-coordinates {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          padding: 6px 10px;
+          background: rgba(0, 20, 40, 0.85);
+          border: 1px solid #00FFFF;
+          border-radius: 4px;
+          font-family: 'Orbitron', sans-serif;
+          font-size: 12px;
+          letter-spacing: 1px;
+          color: #00FFFF;
+          pointer-events: none;
+          text-transform: uppercase;
+          display: none;
+        }
       </style>
       <ha-card>
         <svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width: 100%; height: 100%;">
@@ -1698,6 +1717,7 @@ class LuminaEnergyCard extends HTMLElement {
           </g>
 
         </svg>
+        <div class="debug-coordinates" data-role="debug-coordinates">X: ---, Y: ---</div>
       </ha-card>
     `;
   }
@@ -1711,8 +1731,10 @@ class LuminaEnergyCard extends HTMLElement {
       this._flowPathLengths.clear();
     }
     this._domRefs = {
+      svgRoot: root.querySelector('svg'),
       background: root.querySelector('[data-role="background-image"]'),
       debugGrid: root.querySelector('[data-role="debug-grid"]'),
+      debugCoords: root.querySelector('[data-role="debug-coordinates"]'),
       title: root.querySelector('[data-role="title-text"]'),
       dailyYieldGroup: root.querySelector('[data-role="daily-yield-group"]'),
       dailyLabel: root.querySelector('[data-role="daily-label"]'),
@@ -2221,6 +2243,22 @@ class LuminaEnergyCard extends HTMLElement {
       }
     }
 
+    if (refs.debugCoords) {
+      if (viewState.showDebugGrid) {
+        if (refs.debugCoords.style.display !== 'block') {
+          refs.debugCoords.style.display = 'block';
+        }
+        if (!this._debugCoordsActive) {
+          this._setDebugCoordinateText(null, null);
+        }
+      } else {
+        if (refs.debugCoords.style.display !== 'none') {
+          refs.debugCoords.style.display = 'none';
+        }
+        this._setDebugCoordinateText(null, null);
+      }
+    }
+
     if (refs.title) {
       if (!prev.title || prev.title.text !== viewState.title.text) {
         refs.title.textContent = viewState.title.text;
@@ -2578,6 +2616,46 @@ class LuminaEnergyCard extends HTMLElement {
     this._attachEventListeners();
   }
 
+  _handleDebugPointerMove(event) {
+    if (!DEBUG_GRID_ENABLED || !this._domRefs || !this._domRefs.svgRoot) {
+      return;
+    }
+    const rect = this._domRefs.svgRoot.getBoundingClientRect();
+    const width = rect.width || 0;
+    const height = rect.height || 0;
+    if (width === 0 || height === 0) {
+      return;
+    }
+    const relativeX = ((event.clientX - rect.left) / width) * SVG_DIMENSIONS.width;
+    const relativeY = ((event.clientY - rect.top) / height) * SVG_DIMENSIONS.height;
+    this._setDebugCoordinateText(relativeX, relativeY);
+  }
+
+  _handleDebugPointerLeave() {
+    if (!DEBUG_GRID_ENABLED) {
+      return;
+    }
+    this._setDebugCoordinateText(null, null);
+  }
+
+  _setDebugCoordinateText(x, y) {
+    if (!this._domRefs || !this._domRefs.debugCoords) {
+      return;
+    }
+    const node = this._domRefs.debugCoords;
+    if (x === null || y === null || Number.isNaN(Number(x)) || Number.isNaN(Number(y))) {
+      node.textContent = 'X: ---, Y: ---';
+      this._debugCoordsActive = false;
+      return;
+    }
+    const clampedX = Math.max(0, Math.min(Math.round(x), SVG_DIMENSIONS.width));
+    const clampedY = Math.max(0, Math.min(Math.round(y), SVG_DIMENSIONS.height));
+    const formattedX = clampedX.toString().padStart(3, '0');
+    const formattedY = clampedY.toString().padStart(3, '0');
+    node.textContent = `X: ${formattedX}, Y: ${formattedY}`;
+    this._debugCoordsActive = true;
+  }
+
   _attachEventListeners() {
     if (!this.shadowRoot || !this._domRefs) return;
 
@@ -2635,6 +2713,11 @@ class LuminaEnergyCard extends HTMLElement {
       this._domRefs.housePopup.addEventListener('click', () => {
         this._hideHousePopup();
       });
+    }
+
+    if (DEBUG_GRID_ENABLED && this._domRefs.svgRoot) {
+      this._domRefs.svgRoot.addEventListener('pointermove', this._handleDebugPointerMove);
+      this._domRefs.svgRoot.addEventListener('pointerleave', this._handleDebugPointerLeave);
     }
   }
 
