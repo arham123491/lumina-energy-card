@@ -1,7 +1,7 @@
 /**
  * Lumina Energy Card
  * Custom Home Assistant card for energy flow visualization
- * Version: 1.1.30
+ * Version: 1.1.29
  * Tested with Home Assistant 2025.12+
  */
 const BATTERY_GEOMETRY = { X: 260, Y_BASE: 350, WIDTH: 55, MAX_HEIGHT: 84 };
@@ -1059,36 +1059,34 @@ class LuminaEnergyCard extends HTMLElement {
           gridExport = 0;
         }
       }
+      if (config.sensor_grid_import_daily) {
+        const raw = this.getStateSafe(config.sensor_grid_import_daily);
+        gridImportDaily = Number.isFinite(Number(raw)) ? Number(raw) : 0;
+      }
+      if (config.sensor_grid_export_daily) {
+        const raw = this.getStateSafe(config.sensor_grid_export_daily);
+        gridExportDaily = Number.isFinite(Number(raw)) ? Number(raw) : 0;
+      }
       gridNet = gridImport - gridExport;
+      if (config.invert_grid) {
+        gridNet *= -1;
+        const temp = gridImport;
+        gridImport = gridExport;
+        gridExport = temp;
+      }
+      if (Math.abs(gridNet) < gridActivityThreshold) {
+        gridNet = 0;
+      }
+      gridMagnitude = Math.abs(gridNet);
+      if (!Number.isFinite(gridMagnitude)) {
+        gridMagnitude = 0;
+      }
+      const preferredDirection = gridImport >= gridExport ? 1 : -1;
+      gridDirection = gridNet > 0 ? 1 : (gridNet < 0 ? -1 : preferredDirection);
+      gridActive = gridActivityThreshold === 0
+        ? gridMagnitude > 0
+        : gridMagnitude >= gridActivityThreshold;
     }
-
-    if (config.sensor_grid_import_daily) {
-      const raw = this.getStateSafe(config.sensor_grid_import_daily);
-      gridImportDaily = Number.isFinite(Number(raw)) ? Number(raw) : 0;
-    }
-    if (config.sensor_grid_export_daily) {
-      const raw = this.getStateSafe(config.sensor_grid_export_daily);
-      gridExportDaily = Number.isFinite(Number(raw)) ? Number(raw) : 0;
-    }
-
-    if (config.invert_grid) {
-      gridNet *= -1;
-      const temp = gridImport;
-      gridImport = gridExport;
-      gridExport = temp;
-    }
-    if (Math.abs(gridNet) < gridActivityThreshold) {
-      gridNet = 0;
-    }
-    gridMagnitude = Math.abs(gridNet);
-    if (!Number.isFinite(gridMagnitude)) {
-      gridMagnitude = 0;
-    }
-    const preferredDirection = gridImport >= gridExport ? 1 : -1;
-    gridDirection = gridNet > 0 ? 1 : (gridNet < 0 ? -1 : preferredDirection);
-    gridActive = gridActivityThreshold === 0
-      ? gridMagnitude > 0
-      : gridMagnitude >= gridActivityThreshold;
 
     const thresholdMultiplier = use_kw ? 1000 : 1;
     const gridWarningThresholdRaw = toNumber(config.grid_threshold_warning);
@@ -2839,7 +2837,7 @@ class LuminaEnergyCard extends HTMLElement {
   }
 
   static get version() {
-    return '1.1.30';
+    return '1.1.29';
   }
 }
 
@@ -2916,7 +2914,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_home_load: { label: 'Home Load/Consumption (Required)', helper: 'Total household consumption sensor.' },
           sensor_home_load_secondary: { label: 'Home Load (Inverter 2)', helper: 'Optional house load sensor for the second inverter.' },
           sensor_heat_pump_consumption: { label: 'Heat Pump Consumption', helper: 'Sensor for heat pump energy consumption.' },
-          sensor_grid_power: { label: 'Grid Power', helper: 'Positive/negative grid flow sensor.' },
+          sensor_grid_power: { label: 'Grid Power', helper: 'Positive/negative grid flow sensor. Specify either this sensor or both Grid Import Sensor and Grid Export Sensor.' },
           sensor_grid_import: { label: 'Grid Import Sensor', helper: 'Optional entity reporting grid import (positive) power.' },
           sensor_grid_export: { label: 'Grid Export Sensor', helper: 'Optional entity reporting grid export (positive) power.' },
           sensor_grid_import_daily: { label: 'Daily Grid Import Sensor', helper: 'Optional entity reporting cumulative grid import for the current day.' },
@@ -3148,7 +3146,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_home_load: { label: 'Carico casa/consumo (Obbligatorio)', helper: 'Sensore del consumo totale dell abitazione.' },
           sensor_home_load_secondary: { label: 'Carico casa (Inverter 2)', helper: 'Sensore opzionale del carico domestico per il secondo inverter.' },
           sensor_heat_pump_consumption: { label: 'Consumo pompa di calore', helper: 'Sensore per il consumo energetico della pompa di calore.' },
-          sensor_grid_power: { label: 'Potenza rete', helper: 'Sensore flusso rete positivo/negativo.' },
+          sensor_grid_power: { label: 'Potenza rete', helper: 'Sensore flusso rete positivo/negativo. Specificare o questo sensore o entrambi il Sensore import rete e il Sensore export rete.' },
           sensor_grid_import: { label: 'Sensore import rete', helper: 'Entita opzionale che riporta la potenza di import.' },
           sensor_grid_export: { label: 'Sensore export rete', helper: 'Entita opzionale che riporta la potenza di export.' },
           sensor_grid_import_daily: { label: 'Sensore import rete giornaliero', helper: 'Entita opzionale che riporta l import cumulativo della rete per il giorno corrente.' },
@@ -3380,7 +3378,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_home_load: { label: 'Hausverbrauch (Erforderlich)', helper: 'Sensor fuer Gesamtverbrauch des Haushalts.' },
           sensor_home_load_secondary: { label: 'Hausverbrauch (WR 2)', helper: 'Optionale Hauslast-Entitaet fuer den zweiten Wechselrichter.' },
           sensor_heat_pump_consumption: { label: 'Waermepumpenverbrauch', helper: 'Sensor fuer den Energieverbrauch der Waermepumpe.' },
-          sensor_grid_power: { label: 'Netzleistung', helper: 'Sensor fuer positiven/negativen Netzfluss.' },
+          sensor_grid_power: { label: 'Netzleistung', helper: 'Sensor fuer positiven/negativen Netzfluss. Geben Sie entweder diesen Sensor an oder sowohl den Netzimport-Sensor als auch den Netzexport-Sensor.' },
           sensor_grid_import: { label: 'Netzimport Sensor', helper: 'Optionale Entitaet fuer positiven Netzimport.' },
           sensor_grid_export: { label: 'Netzexport Sensor', helper: 'Optionale Entitaet fuer positiven Netzexport.' },
           sensor_grid_import_daily: { label: 'Tages-Netzimport Sensor', helper: 'Optionale Entitaet, die den kumulierten Netzimport fuer den aktuellen Tag meldet.' },
@@ -3613,7 +3611,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_home_load: { label: 'Charge domestique/consommation (Requis)', helper: 'Capteur de consommation totale du foyer.' },
           sensor_home_load_secondary: { label: 'Charge domestique (Inverseur 2)', helper: 'Capteur de charge domestique optionnel pour le second onduleur.' },
           sensor_heat_pump_consumption: { label: 'Consommation pompe à chaleur', helper: 'Capteur de consommation énergétique de la pompe à chaleur.' },
-          sensor_grid_power: { label: 'Puissance réseau', helper: 'Capteur de flux réseau positif/négatif.' },
+          sensor_grid_power: { label: 'Puissance réseau', helper: 'Capteur de flux réseau positif/négatif. Spécifiez soit ce capteur soit les capteurs Import/Export réseau.' },
           sensor_grid_import: { label: 'Capteur import réseau', helper: 'Entité optionnelle rapportant l import réseau (valeurs positives).' },
           sensor_grid_export: { label: 'Capteur export réseau', helper: 'Entité optionnelle rapportant l export réseau (valeurs positives).' },
           sensor_grid_import_daily: { label: 'Capteur import réseau journalier', helper: 'Entité optionnelle rapportant l import cumulatif réseau pour la journée en cours.' },
@@ -3847,7 +3845,7 @@ class LuminaEnergyCardEditor extends HTMLElement {
           sensor_home_load: { label: 'Huisbelasting/verbruik (Vereist)', helper: 'Sensor voor totale huisverbruik.' },
           sensor_home_load_secondary: { label: 'Huisbelasting (Inverter 2)', helper: 'Optionele huisbelasting sensor voor de tweede inverter.' },
           sensor_heat_pump_consumption: { label: 'Warmtepomp verbruik', helper: 'Sensor voor energieverbruik van de warmtepomp.' },
-          sensor_grid_power: { label: 'Grid vermogen', helper: 'Sensor voor grid flow positief/negatief.' },
+          sensor_grid_power: { label: 'Grid vermogen', helper: 'Sensor voor grid flow positief/negatief. Specificeer of deze sensor of de Grid Import/Export sensoren.' },
           sensor_grid_import: { label: 'Grid import sensor', helper: 'Optionele entiteit die grid import rapporteert (positieve waarden).' },
           sensor_grid_export: { label: 'Grid export sensor', helper: 'Optionele entiteit die grid export rapporteert (positieve waarden).' },
           sensor_grid_import_daily: { label: 'Dagelijkse grid import sensor', helper: 'Optionele entiteit die cumulatieve grid import voor de huidige dag rapporteert.' },
@@ -4147,9 +4145,9 @@ class LuminaEnergyCardEditor extends HTMLElement {
         
       ]),
       grid: define([
-        { name: 'sensor_grid_power', label: fields.sensor_grid_power.label, helper: fields.sensor_grid_power.helper, selector: entitySelector, condition: { not: { or: [{ key: 'sensor_grid_import', has_value: true }, { key: 'sensor_grid_export', has_value: true }] } } },
-        { name: 'sensor_grid_import', label: fields.sensor_grid_import.label, helper: fields.sensor_grid_import.helper, selector: entitySelector, condition: { not: { key: 'sensor_grid_power', has_value: true } } },
-        { name: 'sensor_grid_export', label: fields.sensor_grid_export.label, helper: fields.sensor_grid_export.helper, selector: entitySelector, condition: { not: { key: 'sensor_grid_power', has_value: true } } },
+        { name: 'sensor_grid_power', label: fields.sensor_grid_power.label, helper: fields.sensor_grid_power.helper, selector: entitySelector },
+        { name: 'sensor_grid_import', label: fields.sensor_grid_import.label, helper: fields.sensor_grid_import.helper, selector: entitySelector },
+        { name: 'sensor_grid_export', label: fields.sensor_grid_export.label, helper: fields.sensor_grid_export.helper, selector: entitySelector },
         { name: 'sensor_grid_import_daily', label: fields.sensor_grid_import_daily.label, helper: fields.sensor_grid_import_daily.helper, selector: entitySelector },
         { name: 'sensor_grid_export_daily', label: fields.sensor_grid_export_daily.label, helper: fields.sensor_grid_export_daily.helper, selector: entitySelector },
         { name: 'show_daily_grid', label: fields.show_daily_grid.label, helper: fields.show_daily_grid.helper, selector: { boolean: {} } },
